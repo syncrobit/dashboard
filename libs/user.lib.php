@@ -179,4 +179,22 @@ class SB_USER{
         return false;
     }
 
+    public static function getUserSettings($uID){
+        try {
+            $sql = "SELECT `time_zone`, `date_format`, `time_format`, `wallet_address` FROM `sb_users_settings` WHERE `uid` = :uID";
+
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            return $row;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
 }

@@ -10,6 +10,7 @@ define("SB_CORE", dirname(dirname(__FILE__))."/");
 define("SB_LIBS", SB_CORE."libs/");;
 define("SB_THEMES", SB_CORE."themes/");
 define("SB_MODALS", SB_CORE."modals/");
+define("SB_MODULES", SB_CORE."modules/");
 define("SB_RESOURCES", SB_CORE."resources/");
 
 /** MySQL Credentials */

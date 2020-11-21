@@ -4238,4 +4238,44 @@ File: Responsive
   display: block;
 }
 
+.form-horizontal label{
+  font-weight: bold;
+  line-height: 38px;
+  margin-bottom: 0;
+}
 
+
+.select2-container .select2-selection--single{
+  height: 38px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+  height: 38px;
+}
+
+.select2-container--default .select2-selection--single{
+  background-color: #3b4654;
+  border: 1px solid #4a5869;
+  border-radius: 2px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+  color: #FFF;
+  line-height: 38px;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered{
+  padding-left: .75rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow{
+  height: 35px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b{
+  border-color: #FFF transparent transparent transparent;
+}
+
+.radio label{
+  line-height: 17px !important;
+  margin-bottom: 15px !important;
+}

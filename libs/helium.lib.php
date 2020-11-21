@@ -64,8 +64,9 @@ class SB_HELIUM{
         $balance_tw  = $apiCall->requestEntity('accounts/'.$wallet_addr.'/rewards/sum?min_time='.$start_week_tw.'&max_time='.$end_week_tw);
         $balance_lw = $apiCall->requestEntity('accounts/'.$wallet_addr.'/rewards/sum?min_time='.$start_week_lw.'&max_time='.$end_week_lw);
         $percentage = SB_CORE::getPercentageChange($balance_tw['data']['sum'], $balance_lw['data']['sum']);
-        
-        return number_format($percentage, 2);
+        $compare = ($balance_tw['data']['sum'] > $balance_lw['data']['sum']) ? "mdi-arrow-up text-success" : "mdi-arrow-down text-danger";
+        return array("percent"  => number_format($percentage, 2),
+                     "icon"     => $compare);
     }
 
     public static function getOverViewSummary(){

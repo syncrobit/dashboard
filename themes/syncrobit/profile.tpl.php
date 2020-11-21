@@ -15,8 +15,7 @@
                     <div class="col-sm-6">
                         <div class="card edit-profile-card">
                             <div class="change-profile-img" id="change-p-image">
-                                <img src="https://avatars.syncrob.it/default/023-goldfish.png" alt="user-img"
-                                    class="rounded-circle">
+                                <img src="https://avatars.syncrob.it/default/023-goldfish.png" alt="user-img" class="rounded-circle">
                                 <div class="profile-hover"><i class="mdi mdi-camera"></i></div>    
                             </div>
                             <div class="card-body edit-profile-card-body">

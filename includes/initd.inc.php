@@ -18,4 +18,5 @@ require SB_LIBS."emails.lib.php";
 require SB_LIBS."user.lib.php";
 require SB_LIBS."heliumApiCall.lib.php";
 require SB_LIBS."helium.lib.php";
+require SB_MODULES."select.mod.php";
 
