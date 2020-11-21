@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="24c9d6c5-517a-4afd-a4b8-2f4538538333" name="syncrobit">
+        <fileTransfer accessType="SFTP" host="97.107.135.88" port="2304" sshConfigId="f5ac0f90-7438-45c9-b852-805bdb3601c3" sshConfig="syncrobit@97.107.135.88:2304 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
