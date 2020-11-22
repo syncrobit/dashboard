@@ -61,6 +61,18 @@ class SB_THEME{
         return false;
     }
 
+    public static function getFlagImage($flag){
+        $resource  = SB_CORE::getSetting('resource_uri');
+        return $resource.'images/flags/'.$flag;
+    }
+
+    public static function getFlag($flag){
+        $resource = SB_CORE::getSetting('resource_uri');
+        $flag = $resource."images/flags/".$flag.".png";
+
+        return $flag;
+    }
+
     public static function getUserMenu($menu){
         try {
             $sql = "SELECT `sb_link_name`, `sb_link_uri`, `sb_link_icon` FROM `sb_menu` WHERE `sb_menu_name` = :menu_name";

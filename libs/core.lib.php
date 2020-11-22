@@ -45,7 +45,72 @@ class SB_CORE{
         return ($decreaseValue / $oldNumber) * 100;
     }
 
-    public static function buildCountrySelect($selected = ''){
+    public static function getCountryID($iso){
+    
+        try {
+            $sql = "SELECT `id` FROM `sb_country_codes` WHERE `iso` = :iso";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":iso", $iso);
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
 
+
+            return $row['id'];
+                
+        } catch (PDOException $e) {
+            echo  $e->getMessage();
+        }
+
+        return $return;
+    }
+
+    public static function getZipCode($iso, $zipCode){
+        $zipCode = explode(" ", $zipCode);
+        
+        try {
+            $sql = "SELECT `city_name`, `state_name` FROM `sb_postal_codes` WHERE `iso` = :iso AND `postal_code` LIKE :postal_code";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":iso", $iso);
+            $statement->bindParam(":postal_code", $zipCode[0]);
+            $statement->execute();
+
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+            
+            return array("city" => $row['city_name'], "state" => $row['state_name']);
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    public static function getStates($selected){
+        $selected = self::getCountryID($selected);
+
+        try {
+            $sql = "SELECT `state_name` FROM `sb_states` WHERE `country_id` = :country_id";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":country_id", $selected);
+            $statement->execute();
+            $return = array();
+            $return[] = array("id" => "", "text" => "");
+
+            if($statement->rowCount() > 0) {
+                while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+                    $return[] = array("id" => $row['state_name'], "text" => ucfirst(strtolower($row['state_name'])));
+                }
+            }else{
+                $return[] = array("id" => "N/A", "text" => "Other");
+            }
+        
+           return $return;
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+        
+        return false;
     }
 }

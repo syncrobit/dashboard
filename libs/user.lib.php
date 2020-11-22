@@ -82,6 +82,34 @@ class SB_USER{
         return false;
     }
 
+    public static function updatePassword($uID, $password, $current_pass){
+        if(empty($uID) && empty($password)){
+            return false;
+        }
+        
+        if(!self::checkCurrentPass($current_pass)){
+            return "pass_not_match";
+        }
+
+        try {
+            $sql = "UPDATE `sb_users` SET `password` = MD5(:pwd) WHERE `id` = :uID";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":pwd", $password);
+            $statement->bindParam(":uID", $uID);
+
+            if($statement->execute()){
+                session_destroy();
+                return "success";
+            }
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return "failed";
+
+    }
+
     public static function getRandomAvatar(){
         $avatars = array("001-cat", "002-horse", "003-gorilla", "004-snake", "005-toucan", "006-jaguar", "007-frog",
                          "008-lion", "009-antilope", "010-elephant", "011-giraffe", "012-dog", "013-zebra", "014-koala",
@@ -154,6 +182,12 @@ class SB_USER{
 
     public static function updateUserDetails($uID, $first_name, $last_name, $email, 
                                              $address, $city, $state, $country, $zip_code){
+                                        
+        //Do hard check on email                                        
+        if(self::checkEmailExists($email)){
+                return "email_exits";
+        }
+
         try {
             $sql = "UPDATE `sb_users` SET `first_name` = :first_name, `last_name`= :last_name, 
                     `email` = :email, `address` = :addr, `city` = :city, `state` = :state, 
@@ -171,18 +205,17 @@ class SB_USER{
             $statement->bindParam(":country", $country);
             $statement->bindParam(":zip", $zip_code);
             
-            return $statement->execute();
+            return ($statement->execute()) ? "success" : "failed";
         } catch (PDOException $e) {
             echo $e->getMessage();
         }
 
-        return false;
+        return "failed";
     }
 
     public static function getUserSettings($uID){
         try {
             $sql = "SELECT `time_zone`, `date_format`, `time_format`, `wallet_address` FROM `sb_users_settings` WHERE `uid` = :uID";
-
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":uID", $uID);
@@ -190,6 +223,69 @@ class SB_USER{
             $row = $statement->fetch(PDO::FETCH_ASSOC);
 
             return $row;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function updateUserSettings($uID, $time_zone, $date_format, $time_format, $wallet_address){
+        try {
+            $sql = "UPDATE `sb_users_settings` SET `time_zone` = :t_zone, `date_format` = :d_format, 
+                            `time_format` = :t_format, `wallet_address` = :wallet_address 
+                            WHERE `uid` = :uID";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            $statement->bindParam(":t_zone", $time_zone);
+            $statement->bindParam(":d_format", $date_format);
+            $statement->bindParam(":t_format", $time_format);
+            $statement->bindParam(":wallet_address", $wallet_address);
+            
+            return $statement->execute();
+            
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function checkEmailExists($email){
+        $current_email = self::uID2Email($_SESSION['uID']);
+        
+        if($current_email == $email){
+            return false;
+        }
+
+        try {
+            $sql = "SELECT `id` FROM `sb_users` WHERE `email` = :email";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":email", $email);
+            $statement->execute();
+
+            return $statement->rowCount() > 0;
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function checkCurrentPass($password){
+        try {
+            $sql = "SELECT `id` FROM `sb_users` WHERE `id` = :uID AND `password` = MD5(:password)";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $_SESSION['uID']);
+            $statement->bindParam(":password", $password);
+            $statement->execute();
+
+            return $statement->rowCount() > 0;
+
         } catch (PDOException $e) {
             echo $e->getMessage();
         }

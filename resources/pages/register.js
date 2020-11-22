@@ -37,7 +37,8 @@ $(document).ready(function (){
                 }
             },
             password:{
-                required: true
+                required: true,
+                minlength: 8
             },
             re_pass:{
                 required: true,
@@ -122,4 +123,10 @@ $(document).ready(function (){
         }
 
     });
+
+    $('#password').passtrength({
+        minChars: 8,
+        passwordToggle: false,
+        tooltip: false
+      });
 });

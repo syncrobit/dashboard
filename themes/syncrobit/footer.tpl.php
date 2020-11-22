@@ -3,7 +3,7 @@
 ?>
 
 <footer class="footer">
-    © <?=date(Y);?> SyncroB.it - All Rights Reserved.
+    © <?=date("Y");?> SyncroB.it - All Rights Reserved.
 </footer>
 
 </div>

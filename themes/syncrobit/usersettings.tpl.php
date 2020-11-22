@@ -1,5 +1,3 @@
-<?php $uSettings = SB_USER::getUserSettings($_SESSION['uID']); ?>
-
 <div class="content-page">
     <!-- Start content -->
     <div class="content">
@@ -21,17 +19,17 @@
                                 <div class="form-group row">
                                         <label class="col-sm-3 control-label" for="wallet-address">Wallet Address</label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control" value="<?=$uSettings['wallet_address'];?>" id="wallet-address">
+                                            <input type="text" class="form-control wallet-address" id="wallet-address">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-sm-3 control-label" for="time-zone">Time Zone</label>
                                         <div class="col-sm-9">
-                                            {{SB_SELECT::getTimeZoneSelect(<?=$uSettings['time_zone'];?>)}}
+                                            {{SB_SELECT::getTimeZoneSelect}}
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <label class="col-sm-3 control-label" for="example-text-input">Date Format</label>
+                                        <label class="col-sm-3 control-label" for="date_format">Date Format</label>
                                         <div class="col-sm-9 radio">
                                             <input name="date_format" type="radio" id="date_01" class="radio-col-blue" value="M j, Y">
                                             <label for="date_01"><?=date('M j, Y');?></label><br>
@@ -55,7 +53,10 @@
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Save Changes</button>
+                                        <button type="submit" class="btn btn-primary waves-effect waves-light submit-settings">
+                                            <i class="fa fa-spinner fa-pulse button-spinner" style="display: none"></i>    
+                                            <span class="button-label">Save Changes</span>
+                                        </button>
                                     </div>
                                 </form>
                             </div>
