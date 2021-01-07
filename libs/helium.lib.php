@@ -7,15 +7,18 @@
 
 class SB_HELIUM{
 
+    public static function checkIfValidAddress($address){
+        return (strlen($address) == 51 && substr($address, 0, 1) == 1);
+    }
+
     public static function getBlockHeight($format = 0){
         global $apiCall;
         $height = $apiCall->requestEntity('blocks/height');
         return ($format == 0) ? $height['data']['height'] : number_format($height['data']['height']);
     }
 
-    public static function getBalance($format = 0){
+    public static function getBalance($wallet_addr, $format = 0){
         global $apiCall;
-        $wallet_addr = SB_USER::getUserWalletAddress($_SESSION['uID']);
         $balance = $apiCall->requestEntity('accounts/'.$wallet_addr);
         
         return ($format == 0) ? $balance['data']['balance'] : SB_CORE::moneyFormat($balance['data']['balance'], 3);
@@ -43,6 +46,12 @@ class SB_HELIUM{
         $block_time = $apiCall->requestEntity('stats');
 
         return number_format($block_time['data']['block_times']['last_day']['avg'],0);
+    }
+
+    public static function convertUSD2HNT($amount){
+        $oracle = self::getOraclePrice();
+        $amount = $amount / $oracle;
+        return number_format($amount, 2, '.', '');
     }
 
     public static function getLastWeekBalance(){

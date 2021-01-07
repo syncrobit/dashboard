@@ -99,8 +99,8 @@
 }
 
 .croppie-container .cr-slider-wrap {
-    width: 75%;
-    margin: 15px auto;
+    width: 100%;
+    margin: 5px auto;
     text-align: center;
 }
 
@@ -138,6 +138,9 @@
     padding-top: 8px;
     padding-bottom: 8px;
     background-color: transparent;
+    display: inline-block;
+    float: left;
+    margin-top: 10px;
 }
 
 .cr-slider::-webkit-slider-runnable-track {

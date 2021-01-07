@@ -1,34 +1,42 @@
-<div class="content-page">
-    <!-- Start content -->
-    <div class="content">
+<!-- container -->
+<div class="container-fluid">
 
-        <div class="">
-            <div class="page-header-title">
-                <h4 class="page-title">{{SB_THEME::getPageTitle(<?=$_GET['page'];?>)}}</h4>
-                <button type="button" class="btn btn-info waves-effect waves-light">Add Hotspot</button>
+    <!-- breadcrumb -->
+    <div class="breadcrumb-header justify-content-between">
+        <div class="left-content">
+            <div>
+                <h2 class="main-content-title tx-24 mg-b-1 mg-b-lg-1">{{SB_THEME::getPageTitle(<?=$_GET['page'];?>)}}
+                </h2>
+                <p class="mg-b-0">Mange your hotspot fleet.</p>
             </div>
         </div>
+        <div class="d-flex my-xl-auto right-content"> 
+            <div class="pr-1 mb-3 mb-xl-0"> 
+            <button type="button" class="btn btn-danger btn-icon mr-2">
+                    <i class="mdi mdi-star"></i>
+                </button> 
+            </div> 
+            <div class="pr-1 mb-3 mb-xl-0"> 
+            <button type="button" class="btn btn-warning  btn-icon mr-2">
+                    <i class="mdi mdi-refresh"></i>
+                </button>
+            </div> 
+            <div class="pr-1 mb-6 mb-xl-0"> 
+                 
+            </div> 
+        </div>
+    </div>
+    <!-- /breadcrumb -->
 
-        <div class="page-content-wrapper ">
+    <div class="row row-sm">
+        <div class="col-12">
+            <button class="btn btn-primary btn-block wd-150">Add HotSpot</button>
+        </div>
 
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="m-t-0">Your Title</h4>
-
-                                <div style="height: 300px"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- end row -->
-
-            </div><!-- container-fluid -->
-
-        </div> <!-- Page content Wrapper -->
-
-    </div> <!-- content -->
-
+    </div>
+    <!-- end row -->
 </div>
+<!-- /Container -->
+</div>
+<!-- /main-content -->
+{{SB_CORE::getModal(add-hotspot)}}

@@ -111,5 +111,18 @@ class SB_SELECT{
         
         return false;
     }
+
+    public static function billingFilterSelect(){
+
+        $select  = '<select data-placeholder="" name="billing_filter" id="billing_filter" class="billing_filter form-control select2noimgsearch" style="width: 100%;">';
+        $select .= '<option value="30d">30 Days</option>';
+        $select .= '<option value="60d">60 Days</option>';
+        $select .= '<option value="90d">90 Days</option>';
+        $select .= '<option value="6m" selected="selected">6 Months</option>';
+        $select .= '<option value="12m">12 Months</option>';
+        $select .= '<option value="-1">All time</option>';
+        $select .= '</select>';
+        return $select;
+    }
     
 }

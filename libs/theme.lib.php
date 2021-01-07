@@ -35,7 +35,7 @@ class SB_THEME{
 
     public static function getResourcesImage($img){
         $resource_uri = SB_CORE::getSetting('resource_uri');
-        return $resource_uri."images/".$img;
+        return $resource_uri."img/".$img;
     }
 
     public static function getResourceCSS($css){
@@ -54,21 +54,21 @@ class SB_THEME{
     }
 
     public static function getResourceDynamicJS(){
-        if(file_exists(SB_RESOURCES."pages/".$_GET['page'].".js")){
+        if(file_exists(SB_RESOURCES."js/pages/".$_GET['page'].".js")){
             $resource_uri = SB_CORE::getSetting('resource_uri');
-            return '<script src="'.$resource_uri.'pages/'.$_GET['page'].'.js"></script>';
+            return '<script src="'.$resource_uri.'js/pages/'.$_GET['page'].'.js"></script>';
         }
         return false;
     }
 
     public static function getFlagImage($flag){
         $resource  = SB_CORE::getSetting('resource_uri');
-        return $resource.'images/flags/'.$flag;
+        return $resource.'img/flags/'.$flag;
     }
 
     public static function getFlag($flag){
         $resource = SB_CORE::getSetting('resource_uri');
-        $flag = $resource."images/flags/".$flag.".png";
+        $flag = $resource."img/flags/".$flag.".png";
 
         return $flag;
     }
@@ -81,25 +81,51 @@ class SB_THEME{
             $statement->bindParam(":menu_name", $menu);
             $statement->execute();
 
-            $return = '<ul class="dropdown-menu dropdown-menu-right">';
+            $return  = '<div class="dropdown-menu">';
+            $return .= '<div class="main-header-profile bg-primary p-3">';
+            $return .= '<div class="d-flex wd-100p">';
+            $return .= '<div class="main-img-user">';
+            $return .= '<img src="'.SB_USER::getUserAvatar($_SESSION['uID']).'" alt="profile image" />';
+            $return .= '</div>';
+            $return .= '<div class="ml-3 my-auto">';
+            $return .= '<h6>'.SB_USER::getUserName($_SESSION['uID']).'</h6>';
+            $return .= '<span>'.SB_SUBSCRIPTION::getUserSubType($_SESSION['uID']).'</span>';
+            $return .= '</div>';
+            $return .= '</div>';
+            $return .= '</div>';
 
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
-                $return .= '<li>';
-                $return .= '<a href="'.$row['sb_link_uri'].'" class="dropdown-item">';
+                $return .= '<a class="dropdown-item" href="'.$row['sb_link_uri'].'">';
                 $return .= '<i class="'.$row['sb_link_icon'].'"></i> '.$row['sb_link_name'];
                 $return .= '</a>';
-                $return .= '</li>';
             }
 
-            $return .= '<li class="dropdown-divider"></li>';
-            $return .= '<li>';
-            $return .= '<a href="javascript:void(0)" class="dropdown-item logout">';
-            $return .= '<i class="mdi mdi-logout"></i> Logout';
+            $return .= '<a class="dropdown-item logout" href="javascript:void(0)">';
+            $return .= '<i class="fas fa-sign-out"></i> Sign Out';
             $return .= '</a>';
-            $return .= '</li>';
-            $return .= '</ul>';
+            $return .= '</div>';
 
             return $return;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function getMenuChildren($menu, $pID){
+
+        try {
+            $sql = "SELECT `id`, `sb_link_name`, `sb_link_uri`, `sb_link_icon` FROM `sb_menu` WHERE `sb_menu_name` = :menu_name AND `category_id` = :cat_id";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":menu_name", $menu);
+            $statement->bindParam(":cat_id", $pID);
+            $statement->execute();
+
+            $row = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            return $row;
         } catch (PDOException $e) {
             echo $e->getMessage();
         }
@@ -110,32 +136,33 @@ class SB_THEME{
     public static function getMenu($menu){
 
         try {
-            $sql = "SELECT p.id AS parent_id, p.sb_cat_name AS cat_name, c.id AS child_id, c.sb_link_name AS link_name, c.sb_link_uri AS link_uri, c.sb_link_icon AS link_icon FROM sb_menu_cats AS p LEFT JOIN sb_menu AS c ON c.category_id = p.id WHERE p.menu_name = :menu_name";
+            $sql = "SELECT `id`, `sb_cat_name` FROM `sb_menu_cats` WHERE `menu_name` = :menu_name";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":menu_name", $menu);
             $statement->execute();
 
-            $return = '<ul>';
-            $last_parent_id = 0;
+            $return = '<ul class="side-menu">';
+            
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
-                if ( $row['parent_id'] != $last_parent_id ) {
-                    $return .= '<li class="menu-title">'.$row['cat_name'].'</li>';
-                    $last_parent_id = $row['parent_id'];
-                }
-
-                if($row['child_id']){
-                    $return .= '<li>';
-                    $return .= '<a href="'.$row['link_uri'].'" class="waves-effect">';
-                    $return .= '<i class="'.$row['link_icon'].'"></i>';
-                    $return .= '<span> '.$row['link_name'].'</span>';
-                    $return .= '</a>';
-                    $return .= '</li>';
+                $return .= '<li class="side-item side-item-category">'.$row['sb_cat_name'].'</li>';
+                $children = self::getMenuChildren($menu, $row['id']);
+                    
+                if($children != false){
+                    foreach($children as $child){
+                        $return .= '<li class="slide">';
+                        $return .= '<a href="'.$child['sb_link_uri'].'" class="side-menu__item">';
+                        $return .= '<i class="'.$child['sb_link_icon'].'"></i>';
+                        $return .= '<span class="side-menu__label"> '.$child['sb_link_name'].'</span>';
+                        $return .= '</a>';
+                        $return .= '</li>';
+                    }
                 }
 
             }
 
             $return .= '</ul>';
+
             return $return;
         } catch (PDOException $e) {
             echo $e->getMessage();
@@ -155,7 +182,7 @@ class SB_THEME{
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
 
-            return ($row['sb_link_secure'] == 0 || $row['sb_link_secure'] == 1 && SB_AUTH::checkAuth(2));
+            return ($row['sb_link_secure'] == 1) ? true : false;
 
         } catch (PDOException $e) {
             echo $e->getMessage();
@@ -185,27 +212,50 @@ class SB_THEME{
     }
 
     public static function switchPage($page){
+        
+        //Check Maintenance
+        if(SB_CORE::getMaintenanceState() && $page != "maintenance" && !SB_CORE::getMaitenanceAllowed()){
+            header("Location: /maintenance/", true, 302);
+            exit();
+        }
+
         $is_auth = SB_AUTH::checkAuth(2);
         if(empty($page) && $is_auth){
             header("Location: /overview/", true, 302);
             exit();
-        }elseif(empty($page) && !$is_auth || !self::checkIfPageSecure($page)){
+        }elseif(empty($page) && !$is_auth || !$is_auth && self::checkIfPageSecure($page)){
             header("Location: /login/", true, 302);
             exit();
         }
 
-        if(file_exists(SB_THEMES.SB_THEME."/".$page.".tpl.php")) {
-            echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/head.tpl.php");
-
-            if($is_auth){
-                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/header.tpl.php");
+        if(isset($_GET['page']) && isset($_GET['item'])){
+            if(file_exists(SB_THEMES. SB_THEME."/subitems/".$_GET['item'].".tpl.php")) {
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/head.tpl.php");
+    
+                if($is_auth && self::checkIfPageSecure($page."/".$_GET['item'])){
+                    echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/header.tpl.php");
+                }
+    
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/subitems/" . $_GET['item'] . ".tpl.php");
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/footer.tpl.php");
+            }else{
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/404.tpl.php");
             }
-
-            echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/" . $page . ".tpl.php");
-            echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/footer.tpl.php");
         }else{
-            echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/404.tpl.php");
+            if(file_exists(SB_THEMES.SB_THEME."/".$page.".tpl.php")) {
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/head.tpl.php");
+    
+                if($is_auth && self::checkIfPageSecure($page)){
+                    echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/header.tpl.php");
+                }
+    
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/" . $page . ".tpl.php");
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/footer.tpl.php");
+            }else{
+                echo self::replaceWithFunction(SB_THEMES . SB_THEME . "/404.tpl.php");
+            }
         }
+        
     }
 
     public static function getDynmaicCSS($page){

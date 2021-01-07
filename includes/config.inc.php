@@ -7,11 +7,14 @@
 
 /** Directory Structure */
 define("SB_CORE", dirname(dirname(__FILE__))."/");
-define("SB_LIBS", SB_CORE."libs/");;
+define("SB_LIBS", SB_CORE."libs/");
 define("SB_THEMES", SB_CORE."themes/");
 define("SB_MODALS", SB_CORE."modals/");
 define("SB_MODULES", SB_CORE."modules/");
 define("SB_RESOURCES", SB_CORE."resources/");
+define("SB_IMG_TMP", SB_RESOURCES."avatars/tmp/");
+define("SB_AVATARS", SB_RESOURCES."avatars/");
+define("SB_TMP", SB_CORE."tmp/");
 
 /** MySQL Credentials */
 define("SB_DB_HOST", "127.0.0.1");

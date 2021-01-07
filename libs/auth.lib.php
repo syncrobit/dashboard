@@ -21,14 +21,28 @@ class SB_AUTH{
                 header("Location: /overview/", true, 302);
                 exit();
             }
+        }elseif($rev == 4){
+            if(SB_THEME::checkIfPageSecure($_GET['page'])){
+                return true;  
+            }
+            
+            return (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == 1);
+            
         }else{
             return (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == 1);
         }
     }
 
     public static function makeAuth($username, $password){
+        if(SB_WATCHDOG::checkFieldEmpty(array($username, $password))){
+            return array(
+                "status"    => "empty_fields",
+                "redirect"  => ""
+            );
+        }
+
         try {
-            $sql = "SELECT id FROM `sb_users` WHERE `username` = :username AND `password` = MD5(:password)";
+            $sql = "SELECT id, active FROM `sb_users` WHERE `username` = :username AND `password` = MD5(:password)";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":username", $username);
@@ -37,22 +51,43 @@ class SB_AUTH{
 
             if($statement->rowCount() > 0){
                 $row = $statement->fetch(PDO::FETCH_ASSOC);
+                SB_WATCHDOG::insertUserActivity($row['id'], 'LOGIN', 'Login successful.');
 
-                $_SESSION['isLoggedIn'] = 1;
-                $_SESSION['uID'] = $row['id'];
+                $_SESSION['isLoggedIn']     = 1;
+                $_SESSION['uID']            = $row['id'];
+                $_SESSION['last_activity']  = time();
+                SB_SESSION::updateUID($row['id']);
 
-                return true;
+                if($row['active'] == 0){
+                    $_SESSION['isInactive'] = 1;
+                    return array(
+                        "status"    => "success",
+                        "redirect"  => "/inactive/"
+                    );
+                }
+
+                return array(
+                    "status"    => "success",
+                    "redirect"  => "/overview/"
+                );
             }
 
         } catch (PDOException $e) {
             echo $e->getMessage();
         }
 
-        return false;
+        SB_WATCHDOG::insertUserActivity(SB_USER::userName2uID($username), 'LOGIN', 'Login failed.');
+        return array(
+            "status"    => "failed",
+            "redirect"  => ""
+        );
     }
 
     public static function registerUser($username, $password, $email, $first_name, $last_name){
-        $hash = md5(rand(0,1000));
+
+        if(SB_WATCHDOG::checkFieldEmpty(array($username, $password, $email, $first_name, $last_name))){
+            return "empty_fields";
+        }
 
         if(self::checkIfEmailExists($email)){
             return "email_exits";
@@ -62,10 +97,12 @@ class SB_AUTH{
             return "username_exists";
         }
 
+        $hash = md5(rand(0, 1000));
+
         try {
             $sql = "INSERT INTO `sb_users` 
-                        (`username`, `password`, `email`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `zip_code`, `hash`, `active`, `pwd_hash`)
-                    VALUES (:username, MD5(:password), :email, :first_name, :last_name, NULL, NULL, NULL, NULL, NULL, :hash, 0, NULL)";
+                        (`username`, `password`, `email`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `zip_code`, `hash`, `active`, `pwd_hash`, `member_since`)
+                    VALUES (:username, MD5(:password), :email, :first_name, :last_name, NULL, NULL, NULL, NULL, NULL, :hash, 0, NULL, NOW())";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":username", $username);
@@ -77,10 +114,14 @@ class SB_AUTH{
 
             if($statement->execute()){
                 $uid = $db->lastInsertId();
-                if(self::addUserSettings($uid)) {
+                if(self::addUserSettings($uid) && SB_SUBSCRIPTION::insertBasicSub($uid)) {
                     SB_EMAILS::activationEmail($email, $hash);
-                    $_SESSION['isLoggedIn'] = 1;
-                    $_SESSION['uID'] = $uid;
+                    SB_SESSION::updateUID();
+
+                    $_SESSION['isLoggedIn']     = 1;
+                    $_SESSION['uID']            = $uid;
+                    $_SESSION['isInactive']     = 1;
+                    $_SESSION['last_activity']  = time();
 
                     return "success";
                 }
@@ -91,6 +132,27 @@ class SB_AUTH{
         }
 
         return "failed";
+    }
+
+    public static function checkInactive(){
+        if(!isset($_SESSION['isInactive']) || $_SESSION['isInactive'] != 1){
+            header("Location: /login/", true, 302);
+            exit();
+        }
+    }
+
+    public static function incrementActiveTime(){
+        $_SESSION['last_activity'] = time();
+    }
+
+    public static function checkActiveTime(){
+        if(time() >= ($_SESSION['last_activity'] + 60*60)){
+            self::logOut();
+
+            return true;
+        }
+
+        return false;
     }
 
     public static function checkIfEmailExists($email){
@@ -134,8 +196,8 @@ class SB_AUTH{
         $avatar = SB_USER::getRandomAvatar();
 
         try {
-            $sql = "INSERT INTO `sb_users_settings` (`uid`, `time_zone`, `date_format`, `time_format`, `avatar`, `wallet_address`)
-                    VALUES (:uid, :time_zone, :date_format, :time_format, :avatar, NULL)";
+            $sql = "INSERT INTO `sb_users_settings` (`uid`, `time_zone`, `date_format`, `time_format`, `avatar`)
+                    VALUES (:uid, :time_zone, :date_format, :time_format, :avatar)";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":uid", $id);
@@ -185,6 +247,10 @@ class SB_AUTH{
     }
 
     public static function checkActivationHash($email, $hash){
+        if(SB_WATCHDOG::checkFieldEmpty(array($email, $hash))){
+            return false;
+        }
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `email` = :email AND `hash` = :hash";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
@@ -202,6 +268,10 @@ class SB_AUTH{
     }
 
     public static function updateActivationStatus($email){
+        if(SB_WATCHDOG::checkFieldEmpty(array($email))){
+            return false;
+        }
+
         try {
             $sql = "UPDATE `sb_users` SET `hash` = :hash, `active` = :status WHERE `email` = :email";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
@@ -234,6 +304,7 @@ class SB_AUTH{
             $statement->bindParam(":email", $email);
 
             if($statement->execute()){
+                SB_WATCHDOG::insertUserActivity(SB_USER::email2uID($email), 'FORGOT PASS', 'Forgot password request sent.');
                 SB_EMAILS::sendForgotPwdEmail($email, $hash);
                 return "success";
             }
@@ -246,6 +317,9 @@ class SB_AUTH{
     }
 
     public static function checkForgotPwdHash($email, $hash){
+        if(SB_WATCHDOG::checkFieldEmpty(array($email, $hash))){
+            return false;
+        }
 
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `email` = :email AND `pwd_hash` = :hash";
@@ -281,7 +355,12 @@ class SB_AUTH{
     }
 
     public static function logOut(){
+        SB_WATCHDOG::insertUserActivity($_SESSION['uID'], 'LOGOUT', 'Logout successful.');
         session_destroy();
+        session_write_close();
+        session_unset();
+        $_SESSION = array();
+
         return true;
     }
 

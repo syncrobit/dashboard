@@ -113,4 +113,206 @@ class SB_CORE{
         
         return false;
     }
+
+    /**
+     * Maintenance functions
+     */
+
+    public static function getMaintenanceState(){
+        try {
+            $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindValue(":setting_name", "maintenance");
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            return ($row['setting_value'] == 1);
+
+        } catch (PDOException $e) {
+           echo $e->getMessage();
+        }
+
+        return true;
+    } 
+
+    public static function getMaintenanceDate(){
+        try {
+            $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindValue(":setting_name", "maintenance_time");
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            $m_date = explode("-", date("Y-m-d-H-i", $row['setting_value']));
+            $return  = '<script type="text/javascript">';
+            $return .= "window.onload = function () {;\r\n";
+            $return .= "$('#count-down').countDown({\r\n";
+            $return .= "targetDate: {\r\n";
+            $return .= "'day': ".$m_date[2].",\r\n";
+            $return .= "'month': ".$m_date[1].",\r\n";
+            $return .= "'year': ".$m_date[0].",\r\n";
+            $return .= "'hour': ".$m_date[3].",\r\n";
+            $return .= "'min': ".$m_date[4].",\r\n";
+            $return .= "'sec': 0\r\n";
+            $return .= "},\r\n";
+            $return .= "omitWeeks: true\r\n";
+            $return .= "});\r\n";
+            $return .= "};";
+            $return .= '</script>';
+
+            return $return;
+
+        } catch (PDOException $e) {
+           echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function getMaitenanceAllowed(){
+        try {
+            $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindValue(":setting_name", "maintenance_allow");
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            $allow_ip = explode(";", $row['setting_value']);
+            $u_ip = self::getUserIPAddress();
+            
+            return (in_array($u_ip, $allow_ip));
+
+        } catch (PDOException $e) {
+           echo $e->getMessage();
+        }
+
+        return false;
+    }
+    /**
+     * End Maitenance Functions
+     */
+
+    public static function getUserIPAddress(){
+        $ipaddress = '';
+    if (isset($_SERVER['HTTP_CLIENT_IP'])){
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    }else if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }else if(isset($_SERVER['HTTP_X_FORWARDED'])){
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    }else if(isset($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])){
+        $ipaddress = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
+    }else if(isset($_SERVER['HTTP_FORWARDED_FOR'])){
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    }else if(isset($_SERVER['HTTP_FORWARDED'])){
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    }else if(isset($_SERVER['REMOTE_ADDR'])){
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    }else{
+        $ipaddress = 'UNKNOWN';
+    }
+
+    return $ipaddress;
+    }
+
+    public static function formatTimePeriod($uID, $period){
+        $time = time();
+        switch($period){
+            case "30d":
+                $range = array(
+                    "start" => strtotime("-30 days", $time),
+                    "end"   => $time
+                );
+            break; 
+            case "60d":
+                $range = array(
+                    "start" => strtotime("-60 days", $time),
+                    "end"   => $time
+                );
+            break;
+            case "90d":
+                $range = array(
+                    "start" => strtotime("-90 days", $time),
+                    "end"   => $time
+                );
+            break; 
+            case "6m":
+                $range = array(
+                    "start" => strtotime("-6 Months", $time),
+                    "end"   => $time
+                );
+            break; 
+            case "12m":
+                $range = array(
+                    "start" => strtotime("-1 Year", $time),
+                    "end"   => $time
+                );
+            break;
+            case "-1":
+                $range = array(
+                    "start" => SB_USER::memberSince($uID, 1),
+                    "end"   => $time
+                );
+            break;      
+        }
+
+        return $range;
+    }
+
+    public static function makeRequest($uri){
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $uri);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curl, CURLOPT_FAILONERROR, true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 50);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        return $response;
+    }
+
+    public static function setIpCache($ip, $cache){
+        try {
+            $sql = "INSERT INTO `sb_ip_cache` (`ip`, `cache`) VALUES (:ip, :cache)";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":ip", $ip);
+            $statement->bindParam(":cache", $cache);
+
+            return ($statement->execute());
+            
+        } catch (PDOException $e) {
+           echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function getIpCache($ip){
+        try {
+            $sql = "SELECT `cache` FROM `sb_ip_cache` WHERE `ip` = :ip";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":ip", $ip);
+            $statement->execute();
+
+            if($statement->rowCount() > 0){
+                $row = $statement->fetch(PDO::FETCH_ASSOC);
+                return $row['cache'];
+            }
+            
+        } catch (PDOException $e) {
+           echo $e->getMessage();
+        }
+
+        return false;
+    }
 }

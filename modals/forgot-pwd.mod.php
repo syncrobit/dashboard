@@ -1,9 +1,9 @@
-<div id="forgot-pwd" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" style="display: none;" aria-hidden="true">
+<div id="forgot-pwd" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="forgot-pwd-label" style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form class="form-horizontal" id="forgot-pwd-form" action="">
                 <div class="modal-header">
-                    <h4 class="modal-title m-0" id="custom-width-modalLabel">Reset Password</h4>
+                    <h4 class="modal-title m-0" id="forgot-pwd-label">Reset Password</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
