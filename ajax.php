@@ -156,7 +156,7 @@ switch($_POST['action']){
     break;  
     
     case "ADD_WALLET_ADDRESS":
-        $action = SB_USER::addWallet($_SESSION['uID'], $_POST['nickname'], $_POST['wAddr']);
+        $action = SB_USER::addWallet($_SESSION['uID'], $_POST['nickname'], $_POST['wAddr'], $_POST['primary']);
         $response = $action;
     break;   
     
@@ -166,14 +166,20 @@ switch($_POST['action']){
     break; 
     
     case "EDIT_USER_WALLET":
-        $action = SB_USER::editUserWallet($_SESSION['uID'], $_POST['wID'], $_POST['nickname'], $_POST['wAddr']);
+        $action = SB_USER::editUserWallet($_SESSION['uID'], $_POST['wID'], $_POST['nickname'], $_POST['wAddr'], $_POST['primary']);
         $response['status'] = $action;
     break;
 
     case "DELETE_USER_WALLET":
         $action = SB_USER::deleteUserWallet($_SESSION['uID'], $_POST['wID']);
         $response = $action ;
-    break;  
+    break; 
+    
+    case "GET_USER_PRIMARY_WALLET":
+        $action = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
+        $response['status'] = (!$action) ? "failed" : "success";
+        $response['wallet'] = $action;
+    break;    
     
     case "GENERATE_NEW_KEY":
         $action = SB_API::generateKeys();
@@ -217,7 +223,69 @@ switch($_POST['action']){
         $action = SB_WATCHDOG::getUserActivity($_SESSION['uID'], $_POST['start'], $_POST['end']);
         $response['status'] = (!$action) ? "success" : "failed";
         $response['history'] = $action;
-    break;    
+    break;
+    
+    /** Overview Data */
+    case "GET_BLOCK_TIMES":
+        $action = SB_HELIUM::getBlockWidgetInfo();
+        $response['data'] = $action;
+    break;
+    
+    /** Oracle Data */
+    case "GET_ORACLE_PRICE":
+        $action = SB_HELIUM::getOraclePricesWidget();
+        $response['data'] = $action;
+    break;
+
+    case "GET_DAILY_EARNINGS":
+        $action = SB_HELIUM::dailyEarningsWidget();
+        $response['data'] = $action;
+    break;
+
+    case "GET_TOTAL_REWARDS":
+        $action = SB_HELIUM::totalEarningsWidget();
+        $response['data'] = $action;
+    break;
+
+    case "GET_WEEKLY_GRAPH":
+        $action = SB_HELIUM::getWeeklyRewardsGraphWidget();
+        $response['data'] = $action;
+    break; 
+    
+    case "GET_MONTHLY_GRAPH":
+        $action = SB_HELIUM::getMonthlyRewardsWidget();
+        $response['data'] = $action;
+    break; 
+
+    case "NETWORK_HOTSPOTS":
+        $action = SB_HELIUM::getHotSpotsWidget();
+        $response['data'] = $action;
+    break;
+
+    case "CG_ELECTION_TIME":
+        $action = SB_HELIUM::CGElectionWidget();
+        $response['data'] = $action;
+    break;
+
+    case "TOKEN_SUPPLY":
+        $action = SB_HELIUM::getTokenSupplyWidget();
+        $response['data'] = $action;
+    break;
+
+    case "GET_DC_USAGE_7DAYS":
+        $action = SB_HELIUM::getUsage7Day();
+        $response['data'] = $action;
+    break;
+
+    case "GET_DC_USD_7DAYS":
+        $action = SB_HELIUM::getDCUsageInUSD7Days();
+        $response['data'] = $action;
+    break;
+
+    case "GET_BLOCK_AVG_TIME":
+        $action = SB_HELIUM::getBlockAverageTimes();
+        $response['data'] = $action;
+    break;
 }
 
 echo json_encode($response);

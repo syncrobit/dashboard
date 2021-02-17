@@ -31,7 +31,7 @@ if(SB_AUTH::checkAuth(2) && SB_THEME::checkIfPageSecure($_GET['page'])){ ?>
 <script src="{{SB_THEME::getResourceJs(jquery-validation/dist/jquery.validate.min.js)}}"></script>
 
 <?php 
-if(SB_AUTH::checkAuth(2) && SB_THEME::checkIfPageSecure($_GET['page'])){ 
+if(SB_AUTH::checkAuth(2) && (SB_THEME::checkIfPageSecure($_GET['page']) || SB_THEME::checkIfPageSecure($_GET['page']."/".$_GET['item']))){ 
 ?>
     <!--Internal  Perfect-scrollbar js -->
     <script src="{{SB_THEME::getResourcePlugins(perfect-scrollbar/perfect-scrollbar.min.js)}}"></script>
@@ -58,7 +58,8 @@ if(SB_AUTH::checkAuth(2) && SB_THEME::checkIfPageSecure($_GET['page'])){
 <script src="{{SB_THEME::getResourceJs(custom.js)}}"></script>
 
 <!-- Page js -->
-{{SB_THEME::getDynamicJS(<?=$_GET['page'];?>)}}
+<?php $js = (isset($_GET['item'])) ? $_GET['page']."/".$_GET['item'] : $_GET['page']; ?>
+{{SB_THEME::getDynamicJS(<?=$js;?>)}}
 {{SB_THEME::getResourceDynamicJS}}
 
 </body>

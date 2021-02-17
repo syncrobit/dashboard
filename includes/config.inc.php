@@ -22,5 +22,17 @@ define("SB_DB_USER", "syncrobit");
 define("SB_DB_PASSWORD", "m3rt3c123");
 define("SB_DB_DATABASE", "syncrobit");
 
+/** Postgres Credentials */
+
+//define("SB_PG_HOST", "etl.dewi.org");
+//define("SB_PG_USER", "georgica");
+//define("SB_PG_PASSWORD", "n2YuofwiekKX_FuYCPfLBan6KR8F");
+//define("SB_PG_DATABASE", "etl");
+
+define("SB_PG_HOST", "192.168.144.115");
+define("SB_PG_USER", "etl");
+define("SB_PG_PASSWORD", "m3rt3c123");
+define("SB_PG_DATABASE", "etl");
+
 /* Theme Options */
 define("SB_THEME", "syncrobit");

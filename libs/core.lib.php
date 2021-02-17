@@ -35,14 +35,11 @@ class SB_CORE{
         }
     }
 
-    public static function moneyFormat($amount, $decimals = 3){
-        return number_format($amount / 100000000, $decimals);
-    }
-
-    function getPercentageChange($oldNumber, $newNumber){
-        $decreaseValue = $oldNumber - $newNumber;
-    
-        return ($decreaseValue / $oldNumber) * 100;
+    public static function moneyFormat($amount, $decimals = 3, $no_format = 0){
+        if(empty($amount)){
+            return "0.00";
+        }
+        return ($no_format == 0) ? number_format($amount / 100000000, $decimals) : ($amount / 100000000);
     }
 
     public static function getCountryID($iso){
@@ -314,5 +311,18 @@ class SB_CORE{
         }
 
         return false;
+    }
+
+    public static function loadModules(){
+        $files = glob(SB_MODULES."*.mod.php");
+
+        foreach($files as $file){
+            require($file);
+        }
+
+    }
+
+    public static function millionType($value){
+        return ($value / 1000000)."M";
     }
 }

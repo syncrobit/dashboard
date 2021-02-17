@@ -95,7 +95,8 @@ $('.submit-settings').click(function(e){
             data: {
                 action: 'ADD_WALLET_ADDRESS',
                 nickname: $('#w_nickname').val(),
-                wAddr: $("#w_addr").val()
+                wAddr: $("#w_addr").val(),
+                primary: ($addW_form.find('input:checkbox:checked').length > 0) ? 1 : 0
             },
             beforeSend: function (){
                 $('.btn-add-wallet').prop('disabled', true);
@@ -107,9 +108,16 @@ $('.submit-settings').click(function(e){
                 $('#add-wallet-modal').modal('hide');
 
                 $('.wallets-table').find('.no_wallets').remove();
+                var $badge = '';
+                if($addW_form.find('input:checkbox:checked').length > 0){
+                  $('.primary-wallet-badge').remove();
+                  $badge = ' <span class="badge badge-primary primary-wallet-badge" style="vertical-align: text-top;">Primary Wallet</span>';
+                }
+                
+
                 $('.wallets-table').append(
                     '<tr data-id="'+ response.walletID +'">' +
-                    '<th scope="row">' + response.walletNickname + '</th>' +
+                    '<th scope="row">' + response.walletNickname + $badge + '</th>' +
                     '<td class="align-middle">' + response.walletBalance + ' HNT</td>' +
                     '<td class="text-center align-middle">' +
                     '<a href="javascript:void(0);" class="btn btn-sm btn-primary edit-wallet mr-2" title="Edit">' +
@@ -134,6 +142,13 @@ $('.submit-settings').click(function(e){
                     sticky: false,
                     theme: 'jnoty-danger',
                     icon: 'fa fa-check-circle'
+                });
+              }else if(response.status === "wallet_exists"){
+                $.jnoty("You are already tracking this wallet!", {
+                  header: 'Failed',
+                  sticky: false,
+                  theme: 'jnoty-danger',
+                  icon: 'fa fa-check-circle'
                 });
               }else{
                 $.jnoty("Wallet cannot be added, try again later", {
@@ -176,6 +191,13 @@ $('.submit-settings').click(function(e){
                 $('.ew_nickname').val(response.wallet.nickname);
                 $('.ew_addr').val(response.wallet.w_address);
                 $('.ew_id').val($wID);
+
+                if(response.wallet.primary == 1){
+                  $('.eprimary').prop('checked', true).prop("disabled", true);
+                }else{
+                  $('.eprimary').prop('checked', false);
+                }
+
                 $('#edit-wallet-modal').modal('show');
               }else{
                 $.jnoty("Cannot get wallet details, try again later", {
@@ -226,6 +248,7 @@ $('.submit-settings').click(function(e){
                 wID: $wID,
                 nickname: $nickName,
                 wAddr: $("#ew_addr").val(),
+                primary: ($editW_form.find('input:checkbox:checked').length > 0) ? 1 : 0
             },
             beforeSend: function (){
               $('.btn-edit-wallet').prop('disabled', true);
@@ -236,7 +259,14 @@ $('.submit-settings').click(function(e){
               if (response.status === "success") {
                 $('#edit-wallet-modal').modal('hide');
                 var $row = $('.wallets-table').find('tr[data-id="' + $wID + '"]');
-                $row.find('th').html($nickName);
+                $row.find('td:first').html($nickName);
+
+                var $badge = '';
+                if($editW_form.find('input:checkbox:checked').length > 0){
+                  $('.primary-wallet-badge').remove();
+                  $badge = ' <span class="badge badge-primary primary-wallet-badge" style="vertical-align: text-top;">Primary Wallet</span>';
+                  $row.find('td:first').html($nickName + $badge);
+                }
 
                 $.jnoty("Wallet updated successfully.", {
                   header: 'Success',
@@ -315,7 +345,14 @@ $('.submit-settings').click(function(e){
                     icon: "fa fa-check-circle",
                   });
             
-                } else {
+                }else if(response.status == "cannot_del_primary"){
+                  $.jnoty("Cannot remove primary wallet.", {
+                    header: "Failed",
+                    sticky: false,
+                    theme: "jnoty-danger",
+                    icon: "fa fa-check-circle",
+                  });
+                }else {
                   $.jnoty("Wallet cannot be removed, try again later", {
                     header: "Failed",
                     sticky: false,

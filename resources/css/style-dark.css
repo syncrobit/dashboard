@@ -1170,6 +1170,7 @@ body.dark-theme {
 .dark-theme .popover {
     background-color: #373e52;
     border: 1px solid #333c52;
+    z-index:192391;
 }
 
 .dark-theme .popover-body {

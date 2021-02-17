@@ -17,6 +17,13 @@
                     <div class="form-group">
                         <input class="form-control ew_addr" id="ew_addr" name="ew_addr" type="text" placeholder="Wallet Address">
                     </div>
+                    <div class="checkbox checkbox-primary">
+                        <input id="eprimary" name="eprimary" class="eprimary" type="checkbox">
+                        <label for="eprimary">Primary Wallet</label>
+                        <a href="javascript:void(0);" data-container="body" data-popover-color="head-primary" title="" data-placement="top" data-content="By checking this box, wallet will be set as primary" data-original-title="Primary Wallet">
+                            <i class="fas fa-question-circle"></i>
+                        </a>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>

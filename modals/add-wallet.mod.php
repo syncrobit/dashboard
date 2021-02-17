@@ -16,6 +16,14 @@
                     <div class="form-group">
                         <input class="form-control w_addr" id="w_addr" name="w_addr" type="text" placeholder="Wallet Address">
                     </div>
+                    <div class="checkbox checkbox-primary">
+                        <?php $checked = (!SB_USER::checkifPrimaryWallet($_SESSION['uID']) ? 'checked="checked"' : '');?>
+                        <input id="primary" name="primary" type="checkbox" <?=$checked;?> >
+                        <label for="primary">Primary Wallet</label>
+                        <a href="javascript:void(0);" data-container="body" data-popover-color="head-primary" title="" data-placement="top" data-content="By checking this box, wallet will be set as primary" data-original-title="Primary Wallet">
+                            <i class="fas fa-question-circle"></i>
+                        </a>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>

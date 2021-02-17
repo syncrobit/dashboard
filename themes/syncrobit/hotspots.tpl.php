@@ -30,7 +30,7 @@
 
     <div class="row row-sm">
         <div class="col-12">
-            <button class="btn btn-primary btn-block wd-150">Add HotSpot</button>
+            <button class="btn btn-primary btn-block wd-150" data-toggle="modal" data-target="#add-hotspot-modal">Add HotSpot</button>
         </div>
 
     </div>

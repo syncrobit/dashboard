@@ -1,27 +1,4 @@
 $(document).ready(function () {
-  window.Apex = {
-    chart: {
-      foreColor: "#77778e",
-      toolbar: {
-        show: false,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    tooltip: {
-      theme: "dark",
-    },
-    grid: {
-      borderColor: "rgba(119, 119, 142, 0.2)",
-      xaxis: {
-        lines: {
-          show: true,
-        },
-      },
-    },
-  };
-
   $.ajax({
     url: baseUri,
     method: "POST",
@@ -55,14 +32,28 @@ $(document).ready(function () {
     method: "POST",
     dataType: "json",
     data: {
-      action: "GET_ORACLE_PRICE",
+      action: "NETWORK_HOTSPOTS",
     },
     success: function (response) {
-      $(".oracle-price").html("$" + response.data.price);
-      $(".oracle-diff").html(response.data.diff);
-      $(".oracle-graph").html(response.data.graph);
+      $(".wtotal-hs").html(response.data.total_hs);
+      $(".wactive-hs").html(response.data.available_hs);
+    },
+  });
 
-      $(".oracle-graph").sparkline("html", {
+  $.ajax({
+    url: baseUri,
+    method: "POST",
+    dataType: "json",
+    data: {
+      action: "CG_ELECTION_TIME",
+    },
+    success: function (response) {
+      console.log(response);
+      $(".cg-el-block").html(response.data.election_time);
+      $(".cg-el-time").html(response.data.graph.time + " mins");
+      $(".cg-el-graph").html(response.data.graph.times);
+
+      $(".cg-el-graph").sparkline("html", {
         lineColor: "rgba(255, 255, 255, 0.6)",
         lineWidth: 2,
         spotColor: false,
@@ -83,60 +74,40 @@ $(document).ready(function () {
     method: "POST",
     dataType: "json",
     data: {
-      action: "GET_DAILY_EARNINGS",
+      action: "TOKEN_SUPPLY",
     },
     success: function (response) {
-      $(".wtoday-rewards").html(response.data.total_rewards + " HNT");
-      //$('.oracle-diff').html(response.data.diff);
-      $(".today-reward-graph").html(response.data.graph);
-
-      $(".today-reward-graph").sparkline("html", {
-        lineColor: "rgba(255, 255, 255, 0.6)",
-        lineWidth: 2,
-        spotColor: false,
-        minSpotColor: false,
-        maxSpotColor: false,
-        highlightSpotColor: null,
-        highlightLineColor: null,
-        fillColor: "rgba(255, 255, 255, 0.2)",
-        width: "100%",
-        height: 30,
-        disableTooltips: true,
-      });
+      $(".total-token-supply").html(response.data.total_supply + " HNT");
+      $(".monthly-reward").html(response.data.m_supply);
     },
   });
 
-  $.ajax({
-    url: baseUri,
-    method: "POST",
-    dataType: "json",
-    data: {
-      action: "GET_TOTAL_REWARDS",
-    },
-    success: function (response) {
-      $(".total-earnings-w").html(response.data.total_rewards + " HNT");
-      //$('.oracle-diff').html(response.data.diff);
-      $(".wtotal-earnings").html(response.data.graph);
-
-      $(".wtotal-earnings").sparkline("html", {
-        lineColor: "rgba(255, 255, 255, 0.6)",
-        lineWidth: 2,
-        spotColor: false,
-        minSpotColor: false,
-        maxSpotColor: false,
-        highlightSpotColor: null,
-        highlightLineColor: null,
-        fillColor: "rgba(255, 255, 255, 0.2)",
-        width: "100%",
-        height: 30,
-        disableTooltips: true,
-      });
-    },
-  });
-
-  var optionsWeekEarnings = {
+  window.Apex = {
     chart: {
-      id: "weeklyEarningsGraph",
+      foreColor: "#77778e",
+      toolbar: {
+        show: false,
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      theme: "dark",
+    },
+    grid: {
+      borderColor: "rgba(119, 119, 142, 0.2)",
+      xaxis: {
+        lines: {
+          show: true,
+        },
+      },
+    },
+  };
+
+  /* Apexcharts (#dc_usage) */
+  var dcUsage = {
+    chart: {
       height: 249,
       type: "bar",
       toolbar: {
@@ -165,12 +136,15 @@ $(document).ready(function () {
     },
     series: [
       {
-        name: "Rewards",
+        name: "Data Credits",
+        data: [],
+      },
+      {
+        name: "Packets",
         data: [],
       },
     ],
     xaxis: {
-      type: "category",
       categories: [],
     },
     fill: {
@@ -188,46 +162,47 @@ $(document).ready(function () {
     tooltip: {
       y: {
         formatter: function (val) {
-          return val + " HNT";
+          return val;
         },
       },
     },
   };
-
-  var weeklyChart = new ApexCharts(
-    document.querySelector("#weekly_earnings"),
-    optionsWeekEarnings
-  );
-  weeklyChart.render();
+  var $dc_usage = new ApexCharts(document.querySelector("#dc_usage"), dcUsage);
+  $dc_usage.render();
 
   $.ajax({
     url: baseUri,
     method: "POST",
     dataType: "json",
     data: {
-      action: "GET_WEEKLY_GRAPH",
+      action: "GET_DC_USAGE_7DAYS",
     },
     success: function (response) {
-      $(".weekly-graph-earnings").html(response.data.weekly_sum + " HNT");
-      var $series = response.data.graph.series;
+      $(".dc-usage-total").html(response.data.dcs_sum_formatted);
+      $(".pkts-usage-total").html(response.data.pkts_sum_formatted);
+      var $pkts = response.data.pkts
 
-      if (!$.isArray($series) || !$series.length) {
-        weeklyChart.updateOptions({
+      if (!$.isArray($pkts) || !$pkts.length) {
+        $dc_usage.updateOptions({
           noData: {
-            text: "No Rewards...",
+            text: "No data available...",
           },
         });
       } else {
-        weeklyChart.updateOptions({
+        $dc_usage.updateOptions({
           series: [
             {
-              name: "Rewards",
-              data: $series,
+              name: "Data Credits",
+              data: response.data.dcs,
+            },
+            {
+              name: "Packets",
+              data: $pkts,
             },
           ],
           xaxis: {
             type: "category",
-            categories: response.data.graph.categories,
+            categories: response.data.dates,
           },
           responsive: [
             {
@@ -244,10 +219,10 @@ $(document).ready(function () {
           ],
         });
       }
-    },
+    }
   });
 
-  var optionsMonthlyEarnings = {
+  var dcUsageUSD = {
     chart: {
       height: 249,
       type: "bar",
@@ -256,7 +231,7 @@ $(document).ready(function () {
       },
       fontFamily: "Nunito, sans-serif",
     },
-    colors: ["#f93a5a", "#036fe7", "#f7a556"],
+    colors: ["#f7a556", "#f93a5a", "#036fe7"],
     plotOptions: {
       bar: {
         dataLabels: {
@@ -275,27 +250,13 @@ $(document).ready(function () {
       endingShape: "rounded",
       colors: ["transparent"],
     },
-    responsive: [
-      {
-        breakpoint: 576,
-        options: {
-          stroke: {
-            show: true,
-            width: 1,
-            endingShape: "rounded",
-            colors: ["transparent"],
-          },
-        },
-      },
-    ],
     series: [
       {
-        name: "Rewards",
+        name: "USD",
         data: [],
       },
     ],
     xaxis: {
-      type: "category",
       categories: [],
     },
     fill: {
@@ -307,48 +268,51 @@ $(document).ready(function () {
       position: "top",
       horizontalAlign: "left",
     },
+    noData: {
+      text: "Loading...",
+    },
     tooltip: {
       y: {
         formatter: function (val) {
-          return val + " HNT";
+          return val + " USD";
         },
       },
     },
   };
-  var monthlyGraph = new ApexCharts(
-    document.querySelector("#monthly_earnings"),
-    optionsMonthlyEarnings
+  var $dc_usage_usd = new ApexCharts(
+    document.querySelector("#dc_usage_usd"),
+    dcUsageUSD
   );
-  monthlyGraph.render();
+  $dc_usage_usd.render();
 
   $.ajax({
     url: baseUri,
     method: "POST",
     dataType: "json",
     data: {
-      action: "GET_MONTHLY_GRAPH",
+      action: "GET_DC_USD_7DAYS",
     },
     success: function (response) {
-      $(".wmonthly-rewards-sum").html(response.data.monthly_sum + " HNT");
-      var $series = response.data.graph.series;
+      $(".dc-usage-usd-total").html(response.data.usd_sum_formatted + " USD");
+      var $usd = response.data.usd;
 
-      if (!$.isArray($series) || !$series.length) {
-        monthlyGraph.updateOptions({
+      if (!$.isArray($usd) || !$usd.length) {
+        $dc_usage_usd.updateOptions({
           noData: {
-            text: "No Rewards...",
+            text: "No data available...",
           },
         });
       } else {
-        monthlyGraph.updateOptions({
+        $dc_usage_usd.updateOptions({
           series: [
             {
-              name: "Rewards",
-              data: $series,
+              name: "USD",
+              data: $usd,
             },
           ],
           xaxis: {
             type: "category",
-            categories: response.data.graph.categories,
+            categories: response.data.dates,
           },
           responsive: [
             {
@@ -365,6 +329,87 @@ $(document).ready(function () {
           ],
         });
       }
+    }
+  });
+
+  var ctx9 = document.getElementById("chartArea1").getContext('2d');
+  var gradient1 = ctx9.createLinearGradient(0, 350, 0, 0);
+  gradient1.addColorStop(0, 'rgba(247, 85, 122,0)');
+  gradient1.addColorStop(1, 'rgba(247, 85, 122,.5)');
+  var gradient2 = ctx9.createLinearGradient(0, 280, 0, 0);
+  gradient2.addColorStop(0, 'rgba(0,123,255,0)');
+  gradient2.addColorStop(1, 'rgba(0,123,255,.3)');
+  new Chart(ctx9, {
+    type: "line",
+    data: {
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "July",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      datasets: [
+        {
+          data: [12, 15, 18, 40, 35, 38, 32, 20, 25, 15, 25, 30],
+          borderColor: "#f7557a",
+          borderWidth: 1,
+          backgroundColor: gradient1,
+        },
+        {
+          data: [10, 20, 25, 55, 50, 45, 35, 37, 45, 35, 55, 40],
+          borderColor: "#007bff",
+          borderWidth: 1,
+          backgroundColor: gradient2,
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      legend: {
+        display: false,
+        labels: {
+          display: false,
+        },
+      },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              fontSize: 10,
+              max: 80,
+              fontColor: "rgba(171, 167, 167,0.9)",
+            },
+            gridLines: {
+              display: true,
+              color: "rgba(171, 167, 167,0.2)",
+              drawBorder: false,
+            },
+          },
+        ],
+        xAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              fontSize: 11,
+              fontColor: "rgba(171, 167, 167,0.9)",
+            },
+            gridLines: {
+              display: true,
+              color: "rgba(171, 167, 167,0.2)",
+              drawBorder: false,
+            },
+          },
+        ],
+      },
     },
   });
 });

@@ -24,7 +24,8 @@ require SB_LIBS."heliumApiCall.lib.php";
 require SB_LIBS."helium.lib.php";
 require SB_LIBS."hotspotAnalyzer.lib.php";
 require SB_LIBS."hotspots.lib.php";
-require SB_MODULES."select.mod.php";
 require SB_LIBS."parseUserAgent.lib.php";
 require SB_LIBS."subscription.lib.php";
 require SB_LIBS."api.lib.php";
+
+SB_CORE::loadModules();

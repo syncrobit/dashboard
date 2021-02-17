@@ -54,9 +54,16 @@ class SB_THEME{
     }
 
     public static function getResourceDynamicJS(){
-        if(file_exists(SB_RESOURCES."js/pages/".$_GET['page'].".js")){
-            $resource_uri = SB_CORE::getSetting('resource_uri');
-            return '<script src="'.$resource_uri.'js/pages/'.$_GET['page'].'.js"></script>';
+        if(isset($_GET['item'])){
+            if(file_exists(SB_RESOURCES."js/subitems/".$_GET['item'].".js")){
+                $resource_uri = SB_CORE::getSetting('resource_uri');
+                return '<script src="'.$resource_uri.'js/subitems/'.$_GET['item'].'.js"></script>';
+            }
+        }else{
+            if(file_exists(SB_RESOURCES."js/pages/".$_GET['page'].".js")){
+                $resource_uri = SB_CORE::getSetting('resource_uri');
+                return '<script src="'.$resource_uri.'js/pages/'.$_GET['page'].'.js"></script>';
+            }
         }
         return false;
     }

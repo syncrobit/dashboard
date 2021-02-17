@@ -8,18 +8,73 @@
             </div>
             <div class="modal-body">
                 <div class="add-hotspot-step1 row">
-                    <a href="#" class="col-lg-4-1 add-hs-button hs-diy">
-                        <i class="mdi mdi mdi-hammer"></i>
-                        <span class="hs-btn-txt">Add DIY <br> Hotspot</span>
-                    </a>
-                    <a href="#" class="col-lg-4-1 add-hs-button hs-sb">
-                        <i class="icon-hotspot"></i>
-                        <span class="hs-btn-txt">Add Syncrob.it Hotspot</span>
-                    </a>
-                    <a href="#" class="col-lg-4-1 add-hs-button hs-new">
-                    <i class="mdi mdi-cart-plus"></i>
-                    <span class="hs-btn-txt">Buy Syncrob.it Hotspot</span>
-                    </a>
+                    <div class="col-xl-6 col-lg-6 col-md-6"> 
+                        <a href="javascript:void(0)" class="add-hs-diy">
+                        <div class="card bg-primary-gradient"> 
+                            <div class="card-body"> 
+                                <div class="counter-status d-flex md-mb-0"> 
+                                    <div class="counter-icon"> <i class="fad fa-hammer"></i> </div> 
+                                <div class="ml-auto text-right d-flex align-items-center"> 
+                                    <h6 class="counter mb-0 text-white">
+                                        Add/Track <br>DIY, RAK, OG HotSpot
+                                    </h6> 
+                                </div>
+                                </div> 
+                            </div> 
+                        </div>
+                        </a> 
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6"> 
+                        <a href="javascript:void(0)" class="add-hs-sb">
+                        <div class="card bg-danger-gradient"> 
+                            <div class="card-body"> 
+                                <div class="counter-status d-flex md-mb-0"> 
+                                    <div class="counter-icon"> <i class="fas fa-router"></i> </div> 
+                                <div class="ml-auto text-right d-flex align-items-center"> 
+                                    <h6 class="counter mb-0 text-white">
+                                        Add <br>Syncrob.it Hotspot
+                                    </h6> 
+                                </div>
+                                </div> 
+                            </div> 
+                        </div>
+                        </a> 
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6"> 
+                        <a href="javascript:void(0)" class="add-hs-buy">
+                        <div class="card bg-success-gradient"> 
+                            <div class="card-body"> 
+                                <div class="counter-status d-flex md-mb-0"> 
+                                    <div class="counter-icon"> <i class="fad fa-shopping-cart"></i> </div> 
+                                <div class="ml-auto text-right d-flex align-items-center"> 
+                                    <h6 class="counter mb-0 text-white">
+                                        Buy <br>Syncrob.it Hotspot
+                                    </h6> 
+                                </div>
+                                </div> 
+                            </div> 
+                        </div> 
+                        </a>
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6"> 
+                        <a href="javascript:void(0)" class="add-hs-light">
+                        <div class="card bg-warning-gradient"> 
+                            <div class="card-body"> 
+                                <div class="counter-status d-flex md-mb-0"> 
+                                    <div class="counter-icon"> <i class="fad fa-feather-alt"></i> </div> 
+                                <div class="ml-auto text-right d-flex align-items-center"> 
+                                    <h6 class="counter mb-0 text-white">
+                                        Add <br>Syncrob.it Light Gateway
+                                    </h6> 
+                                </div>
+                            </div> 
+                        </div> 
+                        </a>
+                        </div> 
+                    </div>
                 </div>
 
                 <div class="add-hotspot-step2">

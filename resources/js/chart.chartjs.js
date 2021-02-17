@@ -429,7 +429,7 @@ $(function() {
 		}
 	});
 	/** AREA CHART **/
-	var ctx9 = document.getElementById('chartArea1');
+	var ctx9 = document.getElementById('chartArea1').getContext('2d');
 	var gradient1 = ctx3.createLinearGradient(0, 350, 0, 0);
 	gradient1.addColorStop(0, 'rgba(247, 85, 122,0)');
 	gradient1.addColorStop(1, 'rgba(247, 85, 122,.5)');

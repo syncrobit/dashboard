@@ -501,7 +501,7 @@ class SB_USER{
 
     public static function getUserWallets($uID){
         try {
-            $sql = "SELECT `id`, `nickname`, `w_address` FROM `sb_user_wallets` WHERE `uid` = :uID";
+            $sql = "SELECT `id`, `nickname`, `w_address`, `primary` FROM `sb_user_wallets` WHERE `uid` = :uID";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":uID", $uID);
@@ -521,7 +521,9 @@ class SB_USER{
             if($statement->rowCount() > 0){
                 while($row = $statement->fetch(PDO::FETCH_ASSOC)){
                     $return .= '<tr data-id="'.$row['id'].'">';
-                    $return .= '<th scope="row">'.$row['nickname'].'</th>';
+                    $return .= '<td class="d-felx align-items-center">'.$row['nickname']." ";
+                    $return .= ($row['primary'] == 1) ? ' <span class="badge badge-primary primary-wallet-badge" style="vertical-align: text-top;">Primary Wallet</span>' : '';
+                    $return .= '</td>';
                     $return .= '<td class="align-middle">'.SB_HELIUM::getBalance($row['w_address'], 1).' HNT</td>';
                     $return .= '<td class="text-center align-middle">';
                     $return .= '<a href="javascript:void(0);" class="btn btn-sm btn-primary edit-wallet mr-2" title="Edit">';
@@ -551,18 +553,83 @@ class SB_USER{
         return false;
     }
 
-    public static function addWallet($uID, $wNickname, $wAddress){
+    public static function checkIfWalletAlreadyAdded($uID, $wAddr){
+        try {
+            $sql = "SELECT id FROM `sb_user_wallets` WHERE `uid` = :uID AND `w_address` = :wAddr";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            $statement->bindParam(":wAddr", $wAddr);
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            return ($statement->rowCount() > 0) ? true : false;
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function uncheckPrimaryWallets($uID){
+        try {
+            $sql = "UPDATE `sb_user_wallets` SET `primary` = 0 WHERE `uid` = :uID AND `primary` = 1";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            
+            return ($statement->execute());
+            
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function checkifPrimaryWallet($uID, $wAddr = ''){
+        try {
+            $sql = "SELECT id FROM `sb_user_wallets` WHERE `uid` = :uID AND `primary` = 1";
+            (!empty($wAddr)) ? $sql .= " AND (`w_address` = :wAddr OR `id` = :wAddr)" : "";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            (!empty($wAddr)) ? $statement->bindParam(":wAddr", $wAddr) : "";
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            return ($statement->rowCount() > 0) ? true : false;
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function addWallet($uID, $wNickname, $wAddress, $primary){
         if(!SB_HELIUM::checkIfValidAddress($wAddress)){
-            return "address_invalid";
+            return array("status" => "address_invalid");
+        }
+
+        if(self::checkIfWalletAlreadyAdded($uID, $wAddress)){
+            return array("status" => "wallet_exists");
+        }
+
+        if($primary == 1){
+            self::uncheckPrimaryWallets($uID);
         }
 
         try {
-            $sql = "INSERT INTO `sb_user_wallets` (`uid`, `nickname`, `w_address`) VALUES (:uID, :nickname, :w_address)";
+            $sql = "INSERT INTO `sb_user_wallets` (`uid`, `nickname`, `w_address`, `primary`) VALUES (:uID, :nickname, :w_address, :primary)";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":nickname", $wNickname);
             $statement->bindParam(":w_address", $wAddress);
+            $statement->bindParam(":primary", $primary);
             
             if($statement->execute()){
                 $wID = $db->lastInsertId();
@@ -585,7 +652,7 @@ class SB_USER{
 
     public static function getUserWallet($uID, $wID){
         try {
-            $sql = "SELECT `nickname`, `w_address` FROM `sb_user_wallets` WHERE `uid` = :uID AND `id` = :wID";
+            $sql = "SELECT `nickname`, `w_address`, `primary` FROM `sb_user_wallets` WHERE `uid` = :uID AND `id` = :wID";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":uID", $uID);
@@ -605,19 +672,45 @@ class SB_USER{
         return array("status" => "failed");
     }
 
-    public static function editUserWallet($uID, $wID, $wNickname, $wAddress){
+    public static function getUserPrimaryWallet($uID){
+        try {
+            $sql = "SELECT `w_address` FROM `sb_user_wallets` WHERE `uid` = :uID AND `primary` = 1";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            $statement->execute();
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+
+            return ($statement->rowCount() > 0) ? $row['w_address'] : false;
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+
+    public static function editUserWallet($uID, $wID, $wNickname, $wAddress, $primary){
         if(!SB_HELIUM::checkIfValidAddress($wAddress)){
             return "address_invalid";
         }
 
+        if($primary == 1){
+            self::uncheckPrimaryWallets($uID);
+        }else if($primary == 0 && self::checkifPrimaryWallet($uID, $wAddr)){
+            return "cannot_unset_primary";
+        }
+
         try {
-            $sql = "UPDATE `sb_user_wallets` SET `nickname` = :nickname, `w_address` = :wAddr WHERE `uid` = :uID AND `id` = :wID";
+            $sql = "UPDATE `sb_user_wallets` SET `nickname` = :nickname, `w_address` = :wAddr, `primary` = :primary WHERE `uid` = :uID AND `id` = :wID";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
             $statement = $db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":wID", $wID);
             $statement->bindParam(":nickname", $wNickname);
             $statement->bindParam(":wAddr", $wAddress);
+            $statement->bindParam(":primary", $primary);
             
             return ($statement->execute()) ? "success" : "failed";
 
@@ -645,6 +738,11 @@ class SB_USER{
     }
 
     public static function deleteUserWallet($uID, $wID){
+
+        if(self::checkifPrimaryWallet($uID, $wID)){
+            return array("status" => "cannot_del_primary");
+        }
+
         try {
             $sql = "DELETE FROM `sb_user_wallets` WHERE `uid` = :uID AND `id` = :wID";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
@@ -682,6 +780,24 @@ class SB_USER{
 
             $row = $statement->fetch(PDO::FETCH_ASSOC);
             return $row['type'];
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        return false;
+    }
+
+    public static function getUserDateFormat($uID){
+        try {
+            $sql = "SELECT `date_format` FROM `sb_users_settings` WHERE `uid` = :uID";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $uID);
+            $statement->execute();
+
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+            return $row['date_format'];
 
         } catch (PDOException $e) {
             echo $e->getMessage();
