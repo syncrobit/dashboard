@@ -123,6 +123,7 @@ class SB_SESSION {
 
   public static function updateUID($uID){
     $sID = session_id();
+    $_SESSION['id'] = $sID;
 
     try {
       $sql = "UPDATE `sb_sessions` SET `uid` = :uID WHERE `id` = :sID";
