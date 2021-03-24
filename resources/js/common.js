@@ -7,9 +7,6 @@ $(document).ready(function(){
         placeholder: function () {
             $(this).data("placeholder").trigger("change");
         },
-        })
-        .on("select2:close", function (e) {
-        $(this).valid();
         });
 
     $(".select2noimg")
@@ -17,9 +14,6 @@ $(document).ready(function(){
         placeholder: function () {
             $(this).data("placeholder").trigger("change");
         },
-        })
-        .on("select2:close", function (e) {
-        $(this).valid();
         });
 
         $(".select2noimgsearch")

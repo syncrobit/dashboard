@@ -124,5 +124,39 @@ class SB_SELECT{
         $select .= '</select>';
         return $select;
     }
+
+    public static function buildUserWalletSelect(){
+        try {
+            $sql = "SELECT `nickname`, `w_address`, `primary` FROM `sb_user_wallets` WHERE `uid` = :uID";
+            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
+            $statement = $db->prepare($sql);
+            $statement->bindParam(":uID", $_SESSION['uID']);
+            $statement->execute();
+
+            $select = '<select name="u_wallet_select" id="u_wallet_select" class="u_wallet_select form-control select2noimg" style="width: 150px;">';
+            
+            
+            if($statement->rowCount() > 0) {
+                while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+                    if($row['primary'] == 1){
+                        $select .= '<option value="' . $row['w_address'] . '" selected>' . $row['nickname'] . '</option>';
+                    }else{
+                        $select .= '<option value="' . $row['w_address'] . '">' . $row['nickname'] . '</option>';
+                    }
+                    
+                }
+            }else{
+                $select .= '<option value="N/A">No Wallets</option>';
+            }
+            $select .= '</select>';
+
+           return $select;
+
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+        
+        return false;
+    }
     
 }

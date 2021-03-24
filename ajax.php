@@ -24,44 +24,42 @@ if($_SESSION['id'] == session_id()){
 
 switch($_POST['action']){
     case "LOGIN":
-        $action = SB_AUTH::makeAuth(htmlspecialchars($_POST['username']), htmlspecialchars($_POST['password']));
+        $action = SB_AUTH::makeAuth($_POST['username'], $_POST['password']);
         $response = $action;
     break;
 
     case "REGISTER_USER":
-        $action = SB_AUTH::registerUser(htmlspecialchars($_POST['username']), htmlspecialchars($_POST['password']), 
-                                        htmlspecialchars($_POST['email']), htmlspecialchars($_POST['first_name']), 
-                                        htmlspecialchars($_POST['last_name']));
+        $action = SB_AUTH::registerUser($_POST['username'], $_POST['password'], $_POST['email'], $_POST['first_name'], $_POST['last_name']);
         $response['status'] = $action;
     break;
 
     case "CHECK_EMAIL":
-        $action = SB_AUTH::checkIfEmailExists(htmlspecialchars($_POST['email']));
+        $action = SB_AUTH::checkIfEmailExists($_POST['email']);
         $response = ($action) ? "Email already exists!" : "true";
     break;
 
     case "CHECK_EMAIL_REVERSE":
-        $action = SB_AUTH::checkIfEmailExists(htmlspecialchars($_POST['email']));
+        $action = SB_AUTH::checkIfEmailExists($_POST['email']);
         $response = (!$action) ? "Email not in our database!" : "true";
     break;
 
     case "CHECK_USERNAME":
-        $action = SB_AUTH::checkIfUsernameExists(htmlspecialchars($_POST['username']));
+        $action = SB_AUTH::checkIfUsernameExists($_POST['username']);
         $response = ($action) ? "Username already exists!" : "true";
     break;
 
     case "RESEND_EMAIL":
-        $action = SB_AUTH::resendEmail(htmlspecialchars($_POST['uID']));
+        $action = SB_AUTH::resendEmail($_POST['uID']);
         $response['status'] = $action;
     break;
 
     case "FORGOT_PASSWORD":
-        $action = SB_AUTH::forgotPassword(htmlspecialchars($_POST['email']));
+        $action = SB_AUTH::forgotPassword($_POST['email']);
         $response['status'] = $action;
     break;
 
     case "UPDATE_PASSWORD_FORGOT":
-        $action = SB_USER::updatePasswordForgot(htmlspecialchars($_POST['uID']), htmlspecialchars($_POST['password']));
+        $action = SB_USER::updatePasswordForgot($_POST['uID'], $_POST['password']);
         $response['status'] = ($action) ? "success" : "failed";
     break;
 
@@ -98,9 +96,7 @@ switch($_POST['action']){
     break;
     
     case "UPDATE_USER_SETTINGS":
-        $action = SB_USER::updateUserSettings($_SESSION['uID'], htmlspecialchars($_POST['time_zone']), 
-                                              htmlspecialchars($_POST['date_format']), htmlspecialchars($_POST['time_format']), 
-                                              htmlspecialchars($_POST['wallet_address']));
+        $action = SB_USER::updateUserSettings($_SESSION['uID'], $_POST['time_zone'], $_POST['date_format'], $_POST['time_format'], $_POST['wallet_address']);
         $response['status'] = ($action) ? "success" : "failed";
     break;    
 
@@ -111,9 +107,8 @@ switch($_POST['action']){
     break;
     
     case "UPDATE_USER_DETAILS":
-        $action = SB_USER::updateUserDetails($_SESSION['uID'], htmlspecialchars($_POST['first_name']), htmlspecialchars($_POST['last_name']),
-                                            htmlspecialchars($_POST['address']), htmlspecialchars($_POST['city']), htmlspecialchars($_POST['state']),
-                                            htmlspecialchars($_POST['country']), htmlspecialchars($_POST['zip']));
+        $action = SB_USER::updateUserDetails($_SESSION['uID'], $_POST['first_name'], $_POST['last_name'], $_POST['address'], $_POST['city'], $_POST['state'],
+                                            $_POST['country'], $_POST['zip']);
         $response['status'] = $action;
     break;
 
@@ -123,65 +118,64 @@ switch($_POST['action']){
     break;    
 
     case "GET_STATES":
-        $action                 = SB_CORE::getStates(htmlspecialchars($_POST['iso']));
+        $action                 = SB_CORE::getStates($_POST['iso']);
         $response['status']     = "success";
         $response['data']       = $action;
     break;    
     
     case "GET_CITY_STATE":
-        $action                 = SB_CORE::getZipCode(htmlspecialchars($_POST['iso']), htmlspecialchars($_POST['zipCode']));
+        $action                 = SB_CORE::getZipCode($_POST['iso'], $_POST['zipCode']);
         $response['status']     = "success";
         $response['data']       = $action;
     break;
 
     case "CHECK_CURRENT_PASSWORD":
-        $action             = SB_USER::checkCurrentPass(htmlspecialchars($_POST['password']));
+        $action             = SB_USER::checkCurrentPass($_POST['password']);
         $response           = ($action) ? "true" : "Password does not match!";
     break;  
 
     case "CHECK_PASSWORD":
-        $action             = SB_USER::checkCurrentPass(htmlspecialchars($_POST['password']));
+        $action             = SB_USER::checkCurrentPass($_POST['password']);
         $response['status'] = ($action) ? "success" : "false";
         break;
     
     case "UPDATE_PASSWORD":
-        $action             = SB_USER::updatePassword($_SESSION['uID'], htmlspecialchars($_POST['password']), htmlspecialchars($_POST['current_pass']));
+        $action             = SB_USER::updatePassword($_SESSION['uID'], $_POST['password'], $_POST['current_pass']);
         $response['status'] = ($action) ? "success" : "failed";
     break;  
     
     case "UPDATE_PROFILE_IMG":
-        $action = SB_USER::updateProfileImg($_SESSION['uID'], htmlspecialchars($_POST['img']));
+        $action = SB_USER::updateProfileImg($_SESSION['uID'], $_POST['img']);
         $response['status'] = ($action) ? "success" : "failed";
     break; 
     
     case "DESTORY_SESSION":
-        $action = SB_USER::destroyActiveSession(htmlspecialchars($_POST['sID']));
+        $action = SB_USER::destroyActiveSession($_POST['sID']);
         $response['status'] = ($action) ? "success" : "failed";
     break;   
     
     case "CHECK_HELIUM_ADDRESS":
-        $action = SB_HELIUM::checkIfValidAddress(htmlspecialchars($_POST['w_address']));
+        $action = SB_HELIUM::checkIfValidAddress($_POST['w_address']);
         $response = ($action) ? "true" : "Invalid Helium Wallet Address";
     break;  
     
     case "ADD_WALLET_ADDRESS":
-        $action = SB_USER::addWallet($_SESSION['uID'], htmlspecialchars($_POST['nickname']), htmlspecialchars($_POST['wAddr']), htmlspecialchars($_POST['primary']));
+        $action = SB_USER::addWallet($_SESSION['uID'], $_POST['nickname'], $_POST['wAddr'], $_POST['primary']);
         $response = $action;
     break;   
     
     case "GET_USER_WALLET_DETAILS":
-        $action = SB_USER::getUserWallet($_SESSION['uID'], htmlspecialchars($_POST['wID']));
+        $action = SB_USER::getUserWallet($_SESSION['uID'], $_POST['wID']);
         $response = $action;
     break; 
     
     case "EDIT_USER_WALLET":
-        $action = SB_USER::editUserWallet($_SESSION['uID'], htmlspecialchars($_POST['wID']), htmlspecialchars($_POST['nickname']), 
-                                        htmlspecialchars($_POST['wAddr']), htmlspecialchars($_POST['primary']));
+        $action = SB_USER::editUserWallet($_SESSION['uID'], $_POST['wID'], $_POST['nickname'], $_POST['wAddr'], $_POST['primary']);
         $response['status'] = $action;
     break;
 
     case "DELETE_USER_WALLET":
-        $action = SB_USER::deleteUserWallet($_SESSION['uID'], htmlspecialchars($_POST['wID']));
+        $action = SB_USER::deleteUserWallet($_SESSION['uID'], $_POST['wID']);
         $response = $action ;
     break; 
     
@@ -198,39 +192,39 @@ switch($_POST['action']){
     break;   
     
     case "ADD_API_KEY":
-        $action     = SB_API::addKeys($_SESSION['uID'], htmlspecialchars($_POST['appName']));
+        $action     = SB_API::addKeys($_SESSION['uID'], $_POST['appName']);
         $response   = $action;
     break;  
     
     case "DELETE_KEY":
-        $action = SB_API::deleteKey($_SESSION['uID'], htmlspecialchars($_POST['kID']));
+        $action = SB_API::deleteKey($_SESSION['uID'], $_POST['kID']);
         $response = $action;
     break;
     
     case "GET_API_KEY":
-        $action = SB_API::getUserKey($_SESSION['uID'], htmlspecialchars($_POST['kID']));
+        $action = SB_API::getUserKey($_SESSION['uID'], $_POST['kID']);
         $response['status'] = (!$action) ? "failed" : "success";
         $response['apiKey'] = $action;
     break;
     
     case "GET_HISTORY":
-        $action = SB_SUBSCRIPTION::getPaymentHistory($_SESSION['uID'], htmlspecialchars($_POST['range']));
+        $action = SB_SUBSCRIPTION::getPaymentHistory($_SESSION['uID'], $_POST['range']);
         $response['status'] = (!$action) ? "failed" : "success";
         $response['history'] = $action;
     break;
     
     case "UPGRADE_PGK":
-        $action = SB_SUBSCRIPTION::updateUserPkg($_SESSION['uID'], htmlspecialchars($_POST['pkg']));
+        $action = SB_SUBSCRIPTION::updateUserPkg($_SESSION['uID'], $_POST['pkg']);
         $response['status'] = ($action) ? "success" : "failed";
     break;
     
     case "CREATE_IP_MAP":
-        $action = SB_WATCHDOG::createIPMap(htmlspecialchars($_POST['ip']));
+        $action = SB_WATCHDOG::createIPMap($_POST['ip']);
         $response = $action;
     break;    
 
     case "GET_ACCT_HISTORY":
-        $action = SB_WATCHDOG::getUserActivity($_SESSION['uID'], htmlspecialchars($_POST['start']), htmlspecialchars($_POST['end']));
+        $action = SB_WATCHDOG::getUserActivity($_SESSION['uID'], $_POST['start'], $_POST['end']);
         $response['status'] = (!$action) ? "success" : "failed";
         $response['history'] = $action;
     break;

@@ -7,11 +7,12 @@
 
 class SB_SUBSCRIPTION{
     public static function getUserSubType($uID){
+        global $msql_db;
+
         try {
             $sql = "SELECT sb_packages.package_name AS `name` FROM `sb_subscriptions`
             INNER JOIN `sb_packages` ON sb_subscriptions.type = sb_packages.id WHERE sb_subscriptions.uid = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -25,12 +26,14 @@ class SB_SUBSCRIPTION{
     }
 
     public static function insertBasicSub($uID){
-        $time = time();
+        $time   = time();
+        $uID    = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "INSERT INTO `sb_subscriptions` (`uid`, `created_on`, `expires_on`, `type`, `renewed_on`) 
                     VALUES (:uID, :created_on, -1, 1, :renewed_on)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":created_on", $time);
             $statement->bindParam(":renewed_on", $time);
@@ -45,10 +48,11 @@ class SB_SUBSCRIPTION{
     }
 
     public static function getAllPackages(){
+        global $msql_db;
+
         try {
             $sql = "SELECT `id`, `package_name`, `package_description`, `package_price` FROM `sb_packages`";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->execute();
 
             $pkgs = array();
@@ -103,11 +107,12 @@ class SB_SUBSCRIPTION{
     }
 
     public static function getUserSubInfo($uID){
-        
+        $uID   = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `created_on`, `expires_on`, `renewed_on`, `type` FROM `sb_subscriptions` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -155,11 +160,13 @@ class SB_SUBSCRIPTION{
     }
 
     public static function getAllowedHotspots($uID){
+        $uID   = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT sb_packages.allowed_hs AS `all_hs` FROM `sb_subscriptions`
             INNER JOIN `sb_packages` ON sb_subscriptions.type = sb_packages.id WHERE sb_subscriptions.uid = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -175,6 +182,8 @@ class SB_SUBSCRIPTION{
 
     public static function getPaymentHistory($uID, $period = "6m"){
         $range = SB_CORE::formatTimePeriod($uID, $period);
+        $uID   = sanitize_sql_string($uID);
+        global $msql_db;
 
         try {
             $sql = "SELECT `id`, `amount`, `created_on`, `paid_on`, `transaction_id` FROM `sb_payments` WHERE `uid` = :uID";
@@ -229,13 +238,15 @@ class SB_SUBSCRIPTION{
     }
 
     public static function updateUserPkg($uID, $pkg){
+        global $msql_db;
         $time = time();
         $exp  = strtotime("+1 Month", $time);
+        $uID  = sanitize_sql_string($uID);
+        
 
         try {
             $sql = "UPDATE `sb_subscriptions` SET `created_on` = :created_on, `expires_on` = :exp_on WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":created_on", $time);
             $statement->bindParam(":exp_on", $exp);

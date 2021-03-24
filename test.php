@@ -13,4 +13,5 @@ include "includes/initd.inc.php";
 
 //print_r(SB_HELIUM::getElectionTimes());
 
-print_r(SB_HELIUM::getBlockAverageTimes());
+//print_r(SB_HELIUM::getBlockAverageTimes());
+print_r(SB_HELIUM::getBlockWidgetInfo());

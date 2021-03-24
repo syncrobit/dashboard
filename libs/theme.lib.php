@@ -81,10 +81,12 @@ class SB_THEME{
     }
 
     public static function getUserMenu($menu){
+        $menu   = sanitize_sql_string($menu);
+        global $msql_db;
+
         try {
             $sql = "SELECT `sb_link_name`, `sb_link_uri`, `sb_link_icon` FROM `sb_menu` WHERE `sb_menu_name` = :menu_name";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":menu_name", $menu);
             $statement->execute();
 
@@ -121,11 +123,12 @@ class SB_THEME{
     }
 
     public static function getMenuChildren($menu, $pID){
+        $menu = sanitize_sql_string($menu);
+        global $msql_db;
 
         try {
             $sql = "SELECT `id`, `sb_link_name`, `sb_link_uri`, `sb_link_icon` FROM `sb_menu` WHERE `sb_menu_name` = :menu_name AND `category_id` = :cat_id";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":menu_name", $menu);
             $statement->bindParam(":cat_id", $pID);
             $statement->execute();
@@ -141,11 +144,12 @@ class SB_THEME{
     }
 
     public static function getMenu($menu){
+        $menu = sanitize_sql_string($menu);
+        global $msql_db;
 
         try {
             $sql = "SELECT `id`, `sb_cat_name` FROM `sb_menu_cats` WHERE `menu_name` = :menu_name";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":menu_name", $menu);
             $statement->execute();
 
@@ -179,12 +183,13 @@ class SB_THEME{
     }
 
     public static function checkIfPageSecure($page){
+        $page = sanitize_sql_string($page);
         $page = "/".$page."/";
+        global $msql_db;
 
         try {
             $sql = "SELECT sb_link_secure FROM `sb_menu` WHERE `sb_link_uri` = :uri";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uri", $page);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -199,12 +204,13 @@ class SB_THEME{
     }
 
     public static function getPageTitle($page){
+        $page = sanitize_sql_string($page);
         $page = "/".$page."/";
-
+        global $msql_db;
+        
         try {
             $sql = "SELECT sb_link_name FROM `sb_menu` WHERE `sb_link_uri` = :uri";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uri", $page);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -219,6 +225,7 @@ class SB_THEME{
     }
 
     public static function switchPage($page){
+        $page = sanitize_sql_string($page);
         
         //Check Maintenance
         if(SB_CORE::getMaintenanceState() && $page != "maintenance" && !SB_CORE::getMaitenanceAllowed()){
@@ -266,12 +273,13 @@ class SB_THEME{
     }
 
     public static function getDynmaicCSS($page){
+        $page = sanitize_sql_string($page);
         $page = "/".$page."/";
+        global $msql_db;
 
         try {
             $sql = "SELECT `css` FROM `sb_menu` WHERE `sb_link_uri` = :uri";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uri", $page);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -297,12 +305,14 @@ class SB_THEME{
     }
 
     public static function getDynamicJS($page){
+        global $msql_db;
+        $page = sanitize_sql_string($page);
         $page = "/".$page."/";
 
         try {
             $sql = "SELECT `js` FROM `sb_menu` WHERE `sb_link_uri` = :uri";
             $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uri", $page);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);

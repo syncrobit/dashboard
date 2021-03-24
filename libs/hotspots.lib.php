@@ -7,10 +7,11 @@
 
 class SB_HOTSPOTS{
     public static function getUserHotspots(){
+        global $msql_db;
+
         try {
             $sql = "SELECT `id` FROM `sb_hotspots` WHERE uid = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 

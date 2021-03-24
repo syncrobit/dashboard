@@ -7,10 +7,12 @@
 
 class SB_USER{
     public static function uID2Email($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT email FROM `sb_users` WHERE `id` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -25,10 +27,12 @@ class SB_USER{
     }
 
     public static function email2uID($email){
+        $email = sanitize_sql_string($email);
+        global $msql_db;
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `email` = :email";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":email", $email);
             $statement->execute();
 
@@ -43,10 +47,12 @@ class SB_USER{
     }
 
     public static function userName2uID($username){
+        $username = sanitize_sql_string($username);
+        global $msql_db;
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `username` = :username";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":username", $username);
             $statement->execute();
 
@@ -61,10 +67,12 @@ class SB_USER{
     }
 
     public static function checkIfAccountActive($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `active` = :active AND `id` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindValue(":active", 1);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
@@ -82,10 +90,13 @@ class SB_USER{
             return false;
         }
 
+        global $msql_db;
+        $password   = sanitize_sql_string($password);
+        $uID        = sanitize_sql_string($uID);
+
         try {
             $sql = "UPDATE `sb_users` SET `password` = MD5(:pwd) WHERE `id` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":pwd", $password);
             $statement->bindParam(":uID", $uID);
 
@@ -110,10 +121,13 @@ class SB_USER{
             return "pass_not_match";
         }
 
+        global $msql_db;
+        $password   = sanitize_sql_string($password);
+        $uID        = sanitize_sql_string($uID);
+
         try {
             $sql = "UPDATE `sb_users` SET `password` = MD5(:pwd) WHERE `id` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":pwd", $password);
             $statement->bindParam(":uID", $uID);
 
@@ -145,12 +159,12 @@ class SB_USER{
 
     public static function getUserAvatar($uID){
         $avatar_uri = SB_CORE::getSetting('avatar_uri');
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
 
         try {
             $sql = "SELECT `avatar` FROM `sb_users_settings` WHERE `uid` = :uID";
-            
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -165,11 +179,12 @@ class SB_USER{
     }
 
     public static function getUserName($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `first_name`, `last_name` FROM `sb_users` WHERE `id` = :uID";
-            
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -184,11 +199,12 @@ class SB_USER{
     }
 
     public static function getUserFirstName($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `first_name` FROM `sb_users` WHERE `id` = :uID";
-            
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -203,11 +219,12 @@ class SB_USER{
     }
 
     public static function getUserDetails($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `first_name`, `last_name`, `email`, `address`, `city`, `state`, `country`, `zip_code` FROM `sb_users` WHERE `id` = :uID";
-
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -226,14 +243,23 @@ class SB_USER{
         if(SB_WATCHDOG::checkFieldEmpty(array($first_name, $last_name))){
             return "failed";
         }
+        global $msql_db;
+
+        $uID        = sanitize_sql_string($uID);
+        $first_name = sanitize_sql_string($first_name);
+        $last_name  = sanitize_sql_string($last_name);
+        $address    = sanitize_sql_string($address);
+        $city       = sanitize_sql_string($city);
+        $state      = sanitize_sql_string($state);
+        $country    = sanitize_sql_string($country);
+        $zip_code   = sanitize_sql_string($zip_code);
 
         try {
             $sql = "UPDATE `sb_users` SET `first_name` = :first_name, `last_name`= :last_name, 
                     `address` = :addr, `city` = :city, `state` = :state, 
                     `country` = :country, `zip_code` = :zip WHERE `id` = :uID";
 
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":first_name", $first_name);
             $statement->bindParam(":last_name", $last_name);
@@ -256,6 +282,8 @@ class SB_USER{
     }
 
     public static function changeEmail($email){
+        global $msql_db;
+
         if(SB_WATCHDOG::checkFieldEmpty(array($email))){
             return "failed";
         }
@@ -265,12 +293,14 @@ class SB_USER{
                 return "email_exits";
         }
 
-        $hash = md5(rand(0, 1000));
+        $hash   = md5(rand(0, 1000));
+
+        $uID    = sanitize_sql_string($uID);
+        $email  = sanitize_sql_string($email);
 
         try {
             $sql = "UPDATE `sb_users` SET `email` = :email, `active`= 0, `hash` = :hash WHERE `id` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":email", $email);
             $statement->bindParam(":hash", $hash);
@@ -291,10 +321,12 @@ class SB_USER{
     }
 
     public static function getUserSettings($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `time_zone`, `date_format`, `time_format` FROM `sb_users_settings` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -308,11 +340,16 @@ class SB_USER{
     }
 
     public static function updateUserSettings($uID, $time_zone, $date_format, $time_format, $wallet_address){
+        global $msql_db;
+        $uID            = sanitize_sql_string($uID);
+        $time_zone      = sanitize_sql_string($time_zone);
+        $date_format    = sanitize_sql_string($date_format);
+        $time_format    = sanitize_sql_string($time_format);
+
         try {
             $sql = "UPDATE `sb_users_settings` SET `time_zone` = :t_zone, `date_format` = :d_format, 
                             `time_format` = :t_format WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":t_zone", $time_zone);
             $statement->bindParam(":d_format", $date_format);
@@ -330,10 +367,12 @@ class SB_USER{
     }
 
     public static function checkCurrentPass($password){
+        $password = sanitize_sql_string($password);
+        global $msql_db;
+
         try {
             $sql = "SELECT `id` FROM `sb_users` WHERE `id` = :uID AND `password` = MD5(:password)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $_SESSION['uID']);
             $statement->bindParam(":password", $password);
             $statement->execute();
@@ -348,10 +387,12 @@ class SB_USER{
     }
 
     public static function memberSince($uID, $nf = 0){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `member_since` FROM `sb_users` WHERE `id` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -366,6 +407,7 @@ class SB_USER{
     }
 
     public static function updateProfileImg($uID, $data){
+        global $msql_db;
         $filename = uniqid(rand());
 
         if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
@@ -390,10 +432,9 @@ class SB_USER{
 
         try {
             $sql = "UPDATE `sb_users_settings`  SET `avatar` = :img WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $_SESSION['uID']);
-            $statement->bindParam(":img", $filename);
+            $statement->bindParam(":img", sanitize_sql_string($filename));
             
             if($statement->execute()){
                 SB_WATCHDOG::insertUserActivity($_SESSION['uID'], 'ACCOUNT DETAILS', 'Account profile image successfully changed.');
@@ -408,10 +449,12 @@ class SB_USER{
     }
 
     public static function getUserSessions($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `id`, `timestamp`, `ua`, `ip` FROM `sb_sessions` WHERE `uid` = :uID ORDER BY `timestamp` DESC";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -456,16 +499,18 @@ class SB_USER{
     }
 
     public static function formatUserDate($uID, $date, $jd = 0){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `time_zone`, `date_format`, `time_format` FROM `sb_users_settings` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
 
-            $datetime = new DateTime("@".$date);
-            $userTimezone = new DateTimeZone($row['time_zone']);
+            $datetime       = new DateTime("@".$date);
+            $userTimezone   = new DateTimeZone($row['time_zone']);
             $datetime->setTimezone($userTimezone);
 
             return $datetime->format(($jd == 1) ? $row['date_format'] : $row['date_format'].' '.$row['time_format']);
@@ -478,10 +523,12 @@ class SB_USER{
     }
 
     public static function destroyActiveSession($sID){
+        $sID = sanitize_sql_string($sID);
+        global $msql_db;
+
         try {
             $sql = "DELETE FROM `sb_sessions` WHERE `hash` = :sID AND `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":sID", $sID);
             $statement->bindParam(":uID", $_SESSION['uID']);
             
@@ -500,10 +547,12 @@ class SB_USER{
 
 
     public static function getUserWallets($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `id`, `nickname`, `w_address`, `primary` FROM `sb_user_wallets` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -554,10 +603,13 @@ class SB_USER{
     }
 
     public static function checkIfWalletAlreadyAdded($uID, $wAddr){
+        $uID    = sanitize_sql_string($uID);
+        $wAddr  = sanitize_sql_string($wAddr);
+        global $msql_db;
+
         try {
             $sql = "SELECT id FROM `sb_user_wallets` WHERE `uid` = :uID AND `w_address` = :wAddr";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":wAddr", $wAddr);
             $statement->execute();
@@ -573,10 +625,12 @@ class SB_USER{
     }
 
     public static function uncheckPrimaryWallets($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "UPDATE `sb_user_wallets` SET `primary` = 0 WHERE `uid` = :uID AND `primary` = 1";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             
             return ($statement->execute());
@@ -590,11 +644,14 @@ class SB_USER{
     }
 
     public static function checkifPrimaryWallet($uID, $wAddr = ''){
+        $uID    = sanitize_sql_string($uID);
+        $wAddr  = sanitize_sql_string($wAddr);
+        global $msql_db;
+
         try {
             $sql = "SELECT id FROM `sb_user_wallets` WHERE `uid` = :uID AND `primary` = 1";
             (!empty($wAddr)) ? $sql .= " AND (`w_address` = :wAddr OR `id` = :wAddr)" : "";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             (!empty($wAddr)) ? $statement->bindParam(":wAddr", $wAddr) : "";
             $statement->execute();
@@ -622,10 +679,15 @@ class SB_USER{
             self::uncheckPrimaryWallets($uID);
         }
 
+        $uID        = sanitize_sql_string($uID);
+        $wNickname  = sanitize_sql_string($wNickname);
+        $wAddress   = sanitize_sql_string($wAddress);
+        $primary    = sanitize_sql_string($primary);
+        global $msql_db;
+
         try {
             $sql = "INSERT INTO `sb_user_wallets` (`uid`, `nickname`, `w_address`, `primary`) VALUES (:uID, :nickname, :w_address, :primary)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":nickname", $wNickname);
             $statement->bindParam(":w_address", $wAddress);
@@ -651,10 +713,13 @@ class SB_USER{
     } 
 
     public static function getUserWallet($uID, $wID){
+        $uID = sanitize_sql_string($uID);
+        $wID = sanitize_sql_string($wID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `nickname`, `w_address`, `primary` FROM `sb_user_wallets` WHERE `uid` = :uID AND `id` = :wID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":wID", $wID);
             $statement->execute();
@@ -673,10 +738,12 @@ class SB_USER{
     }
 
     public static function getUserPrimaryWallet($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `w_address` FROM `sb_user_wallets` WHERE `uid` = :uID AND `primary` = 1";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -702,10 +769,16 @@ class SB_USER{
             return "cannot_unset_primary";
         }
 
+        $uID        = sanitize_sql_string($uID);
+        $wID        = sanitize_sql_string($wID);
+        $wNickname  = sanitize_sql_string($wNickname);
+        $wAddress   = sanitize_sql_string($wAddress);
+        $primary    = sanitize_sql_string($primary);
+        global $msql_db;
+
         try {
             $sql = "UPDATE `sb_user_wallets` SET `nickname` = :nickname, `w_address` = :wAddr, `primary` = :primary WHERE `uid` = :uID AND `id` = :wID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":wID", $wID);
             $statement->bindParam(":nickname", $wNickname);
@@ -722,10 +795,12 @@ class SB_USER{
     }
 
     public static function countUserWallets($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `id` FROM `sb_user_wallets` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -738,6 +813,9 @@ class SB_USER{
     }
 
     public static function deleteUserWallet($uID, $wID){
+        $uID = sanitize_sql_string($uID);
+        $wID = sanitize_sql_string($wID);
+        global $msql_db;
 
         if(self::checkifPrimaryWallet($uID, $wID)){
             return array("status" => "cannot_del_primary");
@@ -745,8 +823,7 @@ class SB_USER{
 
         try {
             $sql = "DELETE FROM `sb_user_wallets` WHERE `uid` = :uID AND `id` = :wID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":wID", $wID);
             
@@ -771,10 +848,12 @@ class SB_USER{
     }
 
     public static function getUserPlanID($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `type` FROM `sb_subscriptions` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -789,10 +868,12 @@ class SB_USER{
     }
 
     public static function getUserDateFormat($uID){
+        $uID = sanitize_sql_string($uID);
+        global $msql_db;
+
         try {
             $sql = "SELECT `date_format` FROM `sb_users_settings` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -805,5 +886,6 @@ class SB_USER{
 
         return false;
     }
+
 
 }

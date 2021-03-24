@@ -11,7 +11,7 @@ require_once SB_LIBS."sessions.lib.php";
 $session = new SB_SESSION();
 
 require SB_LIBS."core.lib.php";
-require SB_LIBS."openvpn.lib.php";
+require SB_LIBS."sanitize.lib.php";
 require SB_LIBS."theme.lib.php";
 require SB_LIBS."auth.lib.php";
 require SB_LIBS."watchdog.lib.php";
@@ -29,3 +29,5 @@ require SB_LIBS."subscription.lib.php";
 require SB_LIBS."api.lib.php";
 
 SB_CORE::loadModules();
+
+

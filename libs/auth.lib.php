@@ -34,6 +34,7 @@ class SB_AUTH{
     }
 
     public static function makeAuth($username, $password){
+        global $msql_db;
         if(SB_WATCHDOG::checkFieldEmpty(array($username, $password))){
             return array(
                 "status"    => "empty_fields",
@@ -41,10 +42,12 @@ class SB_AUTH{
             );
         }
 
+        $username = sanitize_sql_string($username);
+        $password = sanitize_sql_string($password);
+
         try {
             $sql = "SELECT id, active FROM `sb_users` WHERE `username` = :username AND `password` = MD5(:password)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":username", $username);
             $statement->bindParam(":password", $password);
             $statement->execute();
@@ -84,6 +87,7 @@ class SB_AUTH{
     }
 
     public static function registerUser($username, $password, $email, $first_name, $last_name){
+        global $msql_db;
 
         if(SB_WATCHDOG::checkFieldEmpty(array($username, $password, $email, $first_name, $last_name))){
             return "empty_fields";
@@ -97,14 +101,18 @@ class SB_AUTH{
             return "username_exists";
         }
 
-        $hash = md5(rand(0, 1000));
+        $hash       = md5(rand(0, 1000));
+        $username   = sanitize_sql_string($username);
+        $password   = sanitize_sql_string($password);
+        $email      = sanitize_sql_string($email);
+        $first_name = sanitize_sql_string($first_name);
+        $last_name  = sanitize_sql_string($last_name);
 
         try {
             $sql = "INSERT INTO `sb_users` 
                         (`username`, `password`, `email`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `zip_code`, `hash`, `active`, `pwd_hash`, `member_since`)
                     VALUES (:username, MD5(:password), :email, :first_name, :last_name, NULL, NULL, NULL, NULL, NULL, :hash, 0, NULL, NOW())";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":username", $username);
             $statement->bindParam(":password", $password);
             $statement->bindParam(":email", $email);
@@ -113,7 +121,7 @@ class SB_AUTH{
             $statement->bindParam(":hash", $hash);
 
             if($statement->execute()){
-                $uid = $db->lastInsertId();
+                $uid = $msql_db->lastInsertId();
                 if(self::addUserSettings($uid) && SB_SUBSCRIPTION::insertBasicSub($uid)) {
                     SB_EMAILS::activationEmail($email, $hash);
                     SB_SESSION::updateUID();
@@ -156,10 +164,12 @@ class SB_AUTH{
     }
 
     public static function checkIfEmailExists($email){
+        global $msql_db;
+        $email = sanitize_sql_string($email);
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `email` = :email";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":email", $email);
             $statement->execute();
 
@@ -173,10 +183,12 @@ class SB_AUTH{
     }
 
     public static function checkIfUsernameExists($username){
+        global $msql_db;
+        $username = sanitize_sql_string($username);
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `username` = :username";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":username", $username);
             $statement->execute();
 
@@ -190,16 +202,16 @@ class SB_AUTH{
     }
 
     public static function addUserSettings($id){
+        global $msql_db;
         $default_tz = SB_CORE::getSetting('default_tz');
         $default_df = SB_CORE::getSetting('default_df');
         $default_tf = SB_CORE::getSetting('default_tf');
-        $avatar = SB_USER::getRandomAvatar();
+        $avatar     = SB_USER::getRandomAvatar();
 
         try {
             $sql = "INSERT INTO `sb_users_settings` (`uid`, `time_zone`, `date_format`, `time_format`, `avatar`)
                     VALUES (:uid, :time_zone, :date_format, :time_format, :avatar)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uid", $id);
             $statement->bindParam(":time_zone", $default_tz);
             $statement->bindParam(":date_format", $default_df);
@@ -215,6 +227,7 @@ class SB_AUTH{
     }
 
     public static function resendEmail($uID){
+        global $msql_db;
         $uID = empty($uID) ? $_SESSION['uID'] : $uID;
 
         if(empty($uID)){
@@ -227,13 +240,13 @@ class SB_AUTH{
 
         $hash = md5(rand(0,1000));
         $email = SB_USER::uID2Email($uID);
+        $uID = sanitize_sql_string($uID);
 
         try {
             $sql = "UPDATE `sb_users` SET `hash` = :hash, `active` = 0 WHERE `id` = :uid";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":hash", $hash);
-            $statement->bindParam(":uid", $uID);
+            $statement->bindParam(":uid", );
 
             if($statement->execute()){
                 SB_EMAILS::activationEmail($email, $hash);
@@ -247,16 +260,19 @@ class SB_AUTH{
     }
 
     public static function checkActivationHash($email, $hash){
+        global $msql_db;
         if(SB_WATCHDOG::checkFieldEmpty(array($email, $hash))){
             return false;
         }
 
+        $email = sanitize_sql_string($email);
+        $hash = sanitize_sql_string($hash);
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `email` = :email AND `hash` = :hash";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":email", $email);
-            $statement->bindParam(":hash", $hash);
+            $statement->bindParam(":hash", );
             $statement->execute();
 
             return $statement->rowCount() > 0;
@@ -268,14 +284,17 @@ class SB_AUTH{
     }
 
     public static function updateActivationStatus($email){
+        global $msql_db;
+
         if(SB_WATCHDOG::checkFieldEmpty(array($email))){
             return false;
         }
 
+        $email = sanitize_sql_string($email);
+
         try {
             $sql = "UPDATE `sb_users` SET `hash` = :hash, `active` = :status WHERE `email` = :email";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindValue(":hash", NULL);
             $statement->bindValue(":status", 1);
             $statement->bindParam(":email", $email);
@@ -290,16 +309,18 @@ class SB_AUTH{
     }
 
     public static function forgotPassword($email){
+        global $msql_db;
+
         if(!self::checkIfEmailExists($email)){
             return "email_not_exist";
         }
 
         $hash = md5(rand(0,1000));
+        $email = sanitize_sql_string($email);
 
         try {
             $sql = "UPDATE `sb_users` SET `pwd_hash` = :hash WHERE `email` = :email";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":hash", $hash);
             $statement->bindParam(":email", $email);
 
@@ -317,14 +338,18 @@ class SB_AUTH{
     }
 
     public static function checkForgotPwdHash($email, $hash){
+        global $msql_db;
+
         if(SB_WATCHDOG::checkFieldEmpty(array($email, $hash))){
             return false;
         }
 
+        $email = sanitize_sql_string($email);
+        $hash = sanitize_sql_string($hash);
+
         try {
             $sql = "SELECT id FROM `sb_users` WHERE `email` = :email AND `pwd_hash` = :hash";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":email", $email);
             $statement->bindParam(":hash", $hash);
             $statement->execute();
@@ -338,10 +363,12 @@ class SB_AUTH{
     }
 
     public static function deleteForgotPwdHash($email){
+        global $msql_db;
+        $email = sanitize_sql_string($email);
+
         try {
             $sql = "UPDATE `sb_users` SET `pwd_hash` = :hash WHERE `email` = :email";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":email", $email);
             $statement->bindValue(":hash", NULL);
 

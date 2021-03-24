@@ -45,17 +45,22 @@ class SB_WATCHDOG{
     }
 
     public static function insertUserActivity($uID, $title, $description){
-        $date = time();
-        $ip = SB_CORE::getUserIPAddress();
+        global $msql_db;
+        $date   = time();
+        $ip     = SB_CORE::getUserIPAddress();
 
         if(self::checkFieldEmpty(array($uID, $title, $description))){
             return false;
         }
 
+        $uID         = sanitize_sql_string($uID);
+        $title       = sanitize_sql_string($title);
+        $description = sanitize_sql_string($description);
+
+
         try {
             $sql = "INSERT INTO `sb_account_history` (`uid`, `title`, `description`, `date`, `ip`) VALUES (:uID, :h_title, :h_desc, :h_date, :h_ip)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":h_title", $title);
             $statement->bindParam(":h_desc", $description);
@@ -71,15 +76,19 @@ class SB_WATCHDOG{
     }
 
     public static function getUserActivity($uID, $start = '', $end = ''){
+        global $msql_db;
+        $start = sanitize_sql_string($start);
+        $end   = sanitize_sql_string($end);
+
         $now = time();
         $start = (empty($start)) ? strtotime("-1 week", $now) : strtotime($start);
         $end = (empty($end)) ? $now : strtotime("+1 days", strtotime($end));
+        $uID = sanitize_sql_string($uID);
 
         try {
             $sql = "SELECT `id`, `title`, `description`, `date`, `ip` FROM `sb_account_history` WHERE `uid` = :uID";
             $sql .= " AND `date` BETWEEN :start AND :end ORDER BY `date` DESC";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":start", $start);
             $statement->bindParam(":end", $end);

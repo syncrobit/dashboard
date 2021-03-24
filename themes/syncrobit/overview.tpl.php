@@ -9,6 +9,11 @@
                 <p class="mg-b-0">Network & Hotspots overview.</p>
             </div>
         </div>
+        <div class="d-flex my-xl-auto right-content"> 
+            <div class="mb-12 mb-xl-12"> 
+                {{SB_SELECT::buildUserWalletSelect}}
+            </div>
+        </div>
     </div>
     <!-- /breadcrumb -->
 

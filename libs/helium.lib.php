@@ -12,11 +12,11 @@ class SB_HELIUM{
     }
 
     public static function getBlockHeight($format = 0){
-        
+        global $pg_db;
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
-            $sql = "select max(height) from blocks";
-            $statement = $db->prepare($sql);
+            //$db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
+            $sql = "SELECT max(height) FROM blocks";
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
 
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -36,11 +36,12 @@ class SB_HELIUM{
     }
 
     public static function getOraclePrice(){
+        global $pg_db;
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
+            //$db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT price FROM oracle_prices p INNER JOIN blocks b ON p.block = b.height 
                     ORDER BY p.block DESC LIMIT 2";
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
 
             $row = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -63,11 +64,12 @@ class SB_HELIUM{
     }
 
     public static function getOraclePrices(){
+        global $pg_db;
+
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT price FROM oracle_prices p INNER JOIN blocks b ON p.block = b.height 
                     WHERE to_timestamp(b.time) > (now() - '1 day'::interval)";
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
 
             $prices = array();
@@ -90,8 +92,9 @@ class SB_HELIUM{
     }
 
     public static function getBlockTime(){
+        global $pg_db;
+
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "WITH day_interval as (
                 SELECT to_timestamp(time) AS timestamp,
                        time - (lead(time) OVER (order by height desc)) AS diff_time
@@ -100,7 +103,7 @@ class SB_HELIUM{
             )
             SELECT
                 (SELECT avg(diff_time) FROM day_interval)::float AS last_day_avg";
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
 
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -112,11 +115,12 @@ class SB_HELIUM{
     }
 
     public static function getBlockTimes(){
+        global $pg_db;
+
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT time - (lead(time) OVER (ORDER BY height DESC)) AS diff_time FROM blocks 
                     WHERE to_timestamp(time) > (now() - '1 hour'::interval)";
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
 
             $times = array();
@@ -168,6 +172,7 @@ class SB_HELIUM{
     }
 
     public static function getAccountTotalRewards(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
 
         if(!$wallet){
@@ -175,9 +180,8 @@ class SB_HELIUM{
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT sum(amount) FROM rewards WHERE account = '".$wallet."'";
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -190,6 +194,7 @@ class SB_HELIUM{
     }
 
     public static function getTodayRewards(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
 
         if(!$wallet){
@@ -197,11 +202,10 @@ class SB_HELIUM{
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT sum(amount) FROM rewards WHERE account = '".$wallet."' 
                     AND DATE(to_timestamp(time)) >= DATE((now() - '1 day'::interval))";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -213,18 +217,18 @@ class SB_HELIUM{
     }
 
     public static function getYesterdayGraph(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         if(!$wallet){
             return false;
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT amount FROM rewards WHERE account = '".$wallet."' 
                     AND DATE(to_timestamp(time)) BETWEEN DATE((now() - '2 day'::interval)) 
                     AND DATE((now() - '1 day'::interval))";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
             $rewards = array();
@@ -239,17 +243,17 @@ class SB_HELIUM{
     }
 
     public static function getWeeklyGraphRewards(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         if(!$wallet){
             return false;
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT amount FROM rewards WHERE account = '".$wallet."' 
                     AND DATE(to_timestamp(time)) >= DATE((now() - '7 day'::interval))";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
             $rewards = array();
@@ -264,17 +268,17 @@ class SB_HELIUM{
     }
 
     public static function getWeeklyRewardsSum(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         if(!$wallet){
             return false;
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT sum(amount) FROM rewards WHERE account = '".$wallet."' 
                     AND DATE(to_timestamp(time)) BETWEEN DATE((now() - '7 day'::interval)) AND DATE((now() - '1 day'::interval))";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
         
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -286,28 +290,30 @@ class SB_HELIUM{
     }
 
     public static function getMonthlyRewardsSum(){
-            $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
-            if(!$wallet){
-                return false;
-            }
+        global $pg_db;
+        $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
+        
+        if(!$wallet){
+            return false;
+        }
     
-            try{
-                $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
-                $sql = "SELECT sum(amount) FROM rewards WHERE account = '".$wallet."' 
-                        AND DATE(to_timestamp(time)) BETWEEN DATE((now() - '30 day'::interval)) AND DATE((now() - '1 day'::interval))";
+        try{
+            $sql = "SELECT sum(amount) FROM rewards WHERE account = '".$wallet."' 
+                    AND DATE(to_timestamp(time)) BETWEEN DATE((now() - '30 day'::interval)) AND DATE((now() - '1 day'::interval))";
 
-                $statement = $db->prepare($sql);
-                $statement->execute();
+            $statement = $pg_db->prepare($sql);
+            $statement->execute();
                   
-                $row = $statement->fetch(PDO::FETCH_ASSOC);
-                return SB_CORE::moneyFormat($row['sum'], 2);
+            $row = $statement->fetch(PDO::FETCH_ASSOC);
+            return SB_CORE::moneyFormat($row['sum'], 2);
     
-               }catch (PDOException $e){
-                echo $e->getMessage();
-               }
+        }catch (PDOException $e){
+            echo $e->getMessage();
+        }
     }
 
     public static function getWeeklyRewards(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"),"", SB_USER::getUserDateFormat($_SESSION['uID']));
 
@@ -316,12 +322,11 @@ class SB_HELIUM{
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT DATE(to_timestamp(time)) as rdate, SUM(amount) FROM rewards WHERE account = '".$wallet."' 
                     AND DATE(to_timestamp(time)) BETWEEN DATE((now() - '7 day'::interval)) AND DATE((now() - '1 day'::interval)) 
                     GROUP BY DATE(to_timestamp(time)) ORDER BY DATE(to_timestamp(time)) ASC";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
             $earnings = array();
@@ -338,6 +343,7 @@ class SB_HELIUM{
     }
 
     public static function getMonthlyRewards(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
@@ -346,12 +352,11 @@ class SB_HELIUM{
         }
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT DATE(to_timestamp(time)) as rdate, SUM(amount) FROM rewards WHERE account = '".$wallet."' 
                     AND DATE(to_timestamp(time)) BETWEEN DATE((now() - '30 day'::interval)) AND DATE((now() - '1 day'::interval)) 
                     GROUP BY DATE(to_timestamp(time)) ORDER BY DATE(to_timestamp(time)) ASC";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
             $earnings = array();
@@ -410,11 +415,12 @@ class SB_HELIUM{
     }
 
     public static function getNetowrkTotalHotspots($format = 0){
+        global $pg_db;
         try{
             $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT value FROM stats_inventory WHERE name = :vname";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->bindValue("vname", "hotspots");
             $statement->execute();
               
@@ -427,11 +433,12 @@ class SB_HELIUM{
     }
 
     public static function getActiveHotspots(){
+        global $pg_db;
         try{
             $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT COUNT(*) FROM gateway_status WHERE online = :status";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->bindValue(":status", "online");
             $statement->execute();
               
@@ -451,11 +458,10 @@ class SB_HELIUM{
     }
 
     public static function getChainVar($var){
+        global $pg_db;
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT value FROM vars_inventory WHERE name=:var_name";
-
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->bindParam(":var_name", $var);
             $statement->execute();
               
@@ -468,12 +474,12 @@ class SB_HELIUM{
     }
 
     public static function getLastElectionBlock($format = 0){
+        global $pg_db;
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT to_timestamp(time), block FROM transactions WHERE type = 'consensus_group_v1' 
                     AND to_timestamp(time) BETWEEN (now() - '6 hour'::interval) AND now() ORDER by block desc limit 1";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->bindParam(":var_name", $var);
             $statement->execute();
               
@@ -486,13 +492,13 @@ class SB_HELIUM{
     }
 
     public static function getElectionTimes(){
+        global $pg_db;
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT to_timestamp(time), time - lag(time, 1) over (order by time) AS times 
                     FROM transactions WHERE type = 'consensus_group_v1' AND to_timestamp(time) BETWEEN (now() - '6 hour'::interval) AND now() 
                     ORDER BY time DESC LIMIT 10";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->bindParam(":var_name", $var);
             $statement->execute();
             
@@ -515,11 +521,12 @@ class SB_HELIUM{
     }
 
     public static function getTokenSupply($format = 0){
+        global $pg_db;
+
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT (sum(balance) / 100000000)::float as token_supply FROM account_inventory";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
               
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -539,22 +546,23 @@ class SB_HELIUM{
     }
 
     public static function getUsage7Day(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT DATE(to_timestamp(time)), SUM(num_packets) AS pkts, SUM(num_dcs) AS dcs 
                     FROM public.packets WHERE DATE(to_timestamp(time)) 
                     BETWEEN DATE((now() - '7 day'::interval)) AND DATE((now() - '1 day'::interval)) 
                     GROUP BY DATE(to_timestamp(time)) ORDER BY DATE(to_timestamp(time)) ASC";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
-            $dcs = array();
-            $pkts = array();
-            $date = array();
+            $dcs    = array();
+            $pkts   = array();
+            $date   = array();
+
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
                 $dcs[]  = $row['dcs'];
                 $pkts[] = $row['pkts'];
@@ -577,23 +585,24 @@ class SB_HELIUM{
     }
 
     public static function getDCUsageInUSD7Days(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT DATE(to_timestamp(time)), SUM(num_dcs) AS dcs, (SUM(num_dcs) * 1.0E-5) AS USD
                     FROM public.packets WHERE DATE(to_timestamp(time)) 
                     BETWEEN DATE((now() - '7 day'::interval)) AND DATE((now() - '1 day'::interval)) 
                     GROUP BY DATE(to_timestamp(time)) ORDER BY DATE(to_timestamp(time)) ASC";
 
-            $statement = $db->prepare($sql);
+            $statement = $pg_db->prepare($sql);
             $statement->execute();
             
-            $dcs = array();
-            $date = array();
-            $dollar = array();
-            $dollar_from = array();
+            $dcs            = array();
+            $date           = array();
+            $dollar         = array();
+            $dollar_from    = array();
+
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
                 $dcs[]  = $row['dcs'];
                 $date[] = date($date_format, strtotime($row['date']));
@@ -618,11 +627,11 @@ class SB_HELIUM{
     }
 
     public static function getBlockAverageTimes(){
+        global $pg_db;
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
         try{
-            $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             //Average 15 mins
             $sql_avg15 = "SELECT timestamp AS time, avg(duration) AS avg_15_min FROM 
             (SELECT timestamp, (time - lag(time, 1) over (ORDER BY time)) AS duration FROM blocks ORDER BY height DESC) 
@@ -641,23 +650,23 @@ class SB_HELIUM{
             AS durations WHERE timestamp BETWEEN (now() - '6 hours'::interval) AND now() 
             GROUP BY (now() - '1 minute'::interval), timestamp ORDER BY time DESC LIMIT 20";
 
-            $avg15 = $db->prepare($sql_avg15);
+            $avg15 = $pg_db->prepare($sql_avg15);
             $avg15->execute();
 
-            $avg30 = $db->prepare($sql_avg30);
+            $avg30 = $pg_db->prepare($sql_avg30);
             $avg30->execute();
 
-            $avg1 = $db->prepare($sql_avg1);
+            $avg1 = $pg_db->prepare($sql_avg1);
             $avg1->execute();
 
-            $date = array();
+            $date   = array();
             $res_15 = array();
             $res_30 = array();
-            $res_1 = array();
+            $res_1  = array();
 
-            $row15 = $avg15->fetchAll(PDO::FETCH_ASSOC);
-            $row30 = $avg30->fetchAll(PDO::FETCH_ASSOC);
-            $row1 = $avg1->fetchAll(PDO::FETCH_ASSOC);
+            $row15  = $avg15->fetchAll(PDO::FETCH_ASSOC);
+            $row30  = $avg30->fetchAll(PDO::FETCH_ASSOC);
+            $row1   = $avg1->fetchAll(PDO::FETCH_ASSOC);
 
             for($i = 0; sizeof($row15) > $i ; $i++){
                 $date[]     = date($date_format, strtotime($row15[$i]['time']));

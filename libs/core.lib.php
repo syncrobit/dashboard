@@ -7,10 +7,11 @@
 
 class SB_CORE{
     public static function getSetting($setting){
+        global $msql_db;
+
         try {
             $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":setting_name", $setting);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -43,11 +44,11 @@ class SB_CORE{
     }
 
     public static function getCountryID($iso){
-    
+        global $msql_db;
+
         try {
             $sql = "SELECT `id` FROM `sb_country_codes` WHERE `iso` = :iso";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":iso", $iso);
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -64,11 +65,11 @@ class SB_CORE{
 
     public static function getZipCode($iso, $zipCode){
         $zipCode = explode(" ", $zipCode);
-        
+        global $msql_db;
+
         try {
             $sql = "SELECT `city_name`, `state_name` FROM `sb_postal_codes` WHERE `iso` = :iso AND `postal_code` LIKE :postal_code";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":iso", $iso);
             $statement->bindParam(":postal_code", $zipCode[0]);
             $statement->execute();
@@ -84,11 +85,11 @@ class SB_CORE{
 
     public static function getStates($selected){
         $selected = self::getCountryID($selected);
+        global $msql_db;
 
         try {
             $sql = "SELECT `state_name` FROM `sb_states` WHERE `country_id` = :country_id";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":country_id", $selected);
             $statement->execute();
             $return = array();
@@ -116,10 +117,11 @@ class SB_CORE{
      */
 
     public static function getMaintenanceState(){
+        global $msql_db;
+
         try {
             $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindValue(":setting_name", "maintenance");
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -134,10 +136,11 @@ class SB_CORE{
     } 
 
     public static function getMaintenanceDate(){
+        global $msql_db;
+
         try {
             $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindValue(":setting_name", "maintenance_time");
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -169,10 +172,11 @@ class SB_CORE{
     }
 
     public static function getMaitenanceAllowed(){
+        global $msql_db;
+
         try {
             $sql = "SELECT `setting_value` FROM `sb_settings` WHERE `setting_name` = :setting_name";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindValue(":setting_name", "maintenance_allow");
             $statement->execute();
             $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -277,10 +281,11 @@ class SB_CORE{
     }
 
     public static function setIpCache($ip, $cache){
+        global $msql_db;
+
         try {
             $sql = "INSERT INTO `sb_ip_cache` (`ip`, `cache`) VALUES (:ip, :cache)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":ip", $ip);
             $statement->bindParam(":cache", $cache);
 
@@ -294,10 +299,11 @@ class SB_CORE{
     }
 
     public static function getIpCache($ip){
+        global $msql_db;
+
         try {
             $sql = "SELECT `cache` FROM `sb_ip_cache` WHERE `ip` = :ip";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":ip", $ip);
             $statement->execute();
 
@@ -324,5 +330,20 @@ class SB_CORE{
 
     public static function millionType($value){
         return ($value / 1000000)."M";
+    }
+
+    public static function addMemcache($key, $value, $time){
+        $memcache = new Memcache;
+        $memcache->connect(SB_MEMCACHED, 11211) or die ("Could not connect");
+        $memcache->set('key', $value, false, $time);
+
+        return $value;
+    }
+
+    public static function getMemcache($key){
+        $memcache = new Memcache;
+        $memcache->connect(SB_MEMCACHED, 11211) or die ("Could not connect");
+
+        return $memcache->get('key');
     }
 }

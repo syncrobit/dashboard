@@ -16,20 +16,22 @@
     }
 
     public static function addKeys($uID, $appName){
+        global $msql_db;
         $time = time();
-
+        $uID = sanitize_sql_string($uID);
+        $appName = sanitize_sql_string($appName);
+        
         try {
             $sql = "INSERT INTO `sb_api_keys` (`uid`, `app_name`, `key`, `created`) 
             VALUES (:uID, :app_name, :akey, :created)";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":app_name", $appName);
             $statement->bindParam(":akey", $_SESSION['new_api_key']);
             $statement->bindParam(":created", $time);
             
             if($statement->execute()){
-                $kID = $db->lastInsertId();
+                $kID = $msql_db->lastInsertId();
                 SB_WATCHDOG::insertUserActivity($uID, 'API KEY ADDED', 'API Key successfully added.');
                 
                 return array(
@@ -51,10 +53,12 @@
     }
 
     public static function getKeysCount($uID){
+        global $msql_db;
+        $uID = sanitize_sql_string($uID);
+
         try {
             $sql = "SELECT id FROM `sb_api_keys` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -68,10 +72,13 @@
     }
 
     public static function deleteKey($uID, $kID){
+        global $msql_db;
+        $uID = sanitize_sql_string($uID);
+        $kID = sanitize_sql_string($kID);
+
         try {
             $sql = "DELETE FROM `sb_api_keys` WHERE `uid` = :uID AND `id` = :kID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":kID", $kID);
             
@@ -93,10 +100,12 @@
     }
 
     public static function getUserKeys($uID){
+        global $msql_db;
+        $uID = sanitize_sql_string($uID);
+
         try {
             $sql = "SELECT `id`, `app_name`, `key`, `created` FROM `sb_api_keys` WHERE `uid` = :uID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->execute();
 
@@ -146,10 +155,13 @@
     }
 
     public static function getUserKey($uID, $kID){
+        global $msql_db;
+        $uID = sanitize_sql_string($uID);
+        $kID = sanitize_sql_string($kID);
+
         try {
             $sql = "SELECT `key` FROM `sb_api_keys` WHERE `uid` = :uID AND `id` = :kID";
-            $db = new PDO("mysql:host=".SB_DB_HOST.";dbname=".SB_DB_DATABASE, SB_DB_USER, SB_DB_PASSWORD);
-            $statement = $db->prepare($sql);
+            $statement = $msql_db->prepare($sql);
             $statement->bindParam(":uID", $uID);
             $statement->bindParam(":kID", $kID);
             $statement->execute();
