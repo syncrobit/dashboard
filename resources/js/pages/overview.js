@@ -368,6 +368,7 @@ $(document).ready(function () {
     },
   });
 
+  //Change Wallet
   $('.u_wallet_select').on('select2:select', function (e) {
     console.log(e.params.data.id);
   });

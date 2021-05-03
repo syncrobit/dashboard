@@ -17,9 +17,9 @@
 
     public static function addKeys($uID, $appName){
         global $msql_db;
-        $time = time();
-        $uID = sanitize_sql_string($uID);
-        $appName = sanitize_sql_string($appName);
+        $time       = time();
+        $uID        = sanitize_sql_string($uID);
+        $appName    = sanitize_sql_string($appName);
         
         try {
             $sql = "INSERT INTO `sb_api_keys` (`uid`, `app_name`, `key`, `created`) 
@@ -45,7 +45,7 @@
             return array("status" => "failed"); 
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -65,7 +65,7 @@
             return $statement->rowCount();
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -93,7 +93,7 @@
             return array("status" => "failed");
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -148,7 +148,7 @@
             return $return;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -170,7 +170,7 @@
             return $row['key'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;

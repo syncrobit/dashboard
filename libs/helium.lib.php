@@ -13,8 +13,8 @@ class SB_HELIUM{
 
     public static function getBlockHeight($format = 0){
         global $pg_db;
+
         try{
-            //$db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
             $sql = "SELECT max(height) FROM blocks";
             $statement = $pg_db->prepare($sql);
             $statement->execute();
@@ -24,7 +24,7 @@ class SB_HELIUM{
             return ($format == 0) ? $row['max'] : number_format($row['max']);
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -37,8 +37,9 @@ class SB_HELIUM{
 
     public static function getOraclePrice(){
         global $pg_db;
+
         try{
-            //$db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
+            
             $sql = "SELECT price FROM oracle_prices p INNER JOIN blocks b ON p.block = b.height 
                     ORDER BY p.block DESC LIMIT 2";
             $statement = $pg_db->prepare($sql);
@@ -51,7 +52,7 @@ class SB_HELIUM{
             );
     
         }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
    
     }
@@ -81,7 +82,7 @@ class SB_HELIUM{
             
     
         }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
     }
 
@@ -110,7 +111,7 @@ class SB_HELIUM{
             return number_format($row['last_day_avg'],0);
 
         }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
     }
 
@@ -132,7 +133,7 @@ class SB_HELIUM{
             
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -167,7 +168,7 @@ class SB_HELIUM{
     public static function totalEarningsWidget(){
         return array(
             "total_rewards" => self::getAccountTotalRewards(),
-            "graph" => self::getWeeklyGraphRewards()
+            "graph"         => self::getWeeklyGraphRewards()
         );
     }
 
@@ -212,7 +213,7 @@ class SB_HELIUM{
             return SB_CORE::moneyFormat($row['sum'], 2); 
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -238,13 +239,15 @@ class SB_HELIUM{
             return implode(',', $rewards);  
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getWeeklyGraphRewards(){
         global $pg_db;
+
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
+
         if(!$wallet){
             return false;
         }
@@ -263,13 +266,15 @@ class SB_HELIUM{
             return implode(',', $rewards);  
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getWeeklyRewardsSum(){
         global $pg_db;
+
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
+
         if(!$wallet){
             return false;
         }
@@ -285,12 +290,13 @@ class SB_HELIUM{
             return SB_CORE::moneyFormat($row['sum'], 2);
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getMonthlyRewardsSum(){
         global $pg_db;
+
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         
         if(!$wallet){
@@ -308,12 +314,13 @@ class SB_HELIUM{
             return SB_CORE::moneyFormat($row['sum'], 2);
     
         }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
     }
 
     public static function getWeeklyRewards(){
         global $pg_db;
+
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"),"", SB_USER::getUserDateFormat($_SESSION['uID']));
 
@@ -333,17 +340,18 @@ class SB_HELIUM{
             $cats = array();
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
                 $earnings[] = SB_CORE::moneyFormat($row['sum'], 2);
-                $cats[] = date($date_format, strtotime($row['rdate']));
+                $cats[]     = date($date_format, strtotime($row['rdate']));
             }
             return array("series" => $earnings, "categories" => $cats);
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getMonthlyRewards(){
         global $pg_db;
+
         $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
         $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
@@ -361,6 +369,7 @@ class SB_HELIUM{
             
             $earnings = array();
             $e_dates = array();
+
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
                 $e_dates[]  = date($date_format, strtotime($row['rdate']));
                 $earnings[] = SB_CORE::moneyFormat($row['sum'], 2); 
@@ -371,7 +380,7 @@ class SB_HELIUM{
             );
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -384,8 +393,8 @@ class SB_HELIUM{
 
     public static function getMonthlyRewardsWidget(){
         return array(
-            "graph"         => self::getMonthlyRewards(),
-            "monthly_sum"    => self::getMonthlyRewardsSum()
+            "graph"             => self::getMonthlyRewards(),
+            "monthly_sum"       => self::getMonthlyRewardsSum()
         );
     }
 
@@ -414,7 +423,7 @@ class SB_HELIUM{
         return $return;
     }
 
-    public static function getNetowrkTotalHotspots($format = 0){
+    public static function getNetworkTotalHotspots($format = 0){
         global $pg_db;
         try{
             $db = new PDO("pgsql:host=".SB_PG_HOST.";port=5432;dbname=".SB_PG_DATABASE.";user=".SB_PG_USER.";password=".SB_PG_PASSWORD);
@@ -428,7 +437,7 @@ class SB_HELIUM{
             return ($format == 0) ? number_format($row['value'], 0) : $row['value'];
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -446,13 +455,13 @@ class SB_HELIUM{
             return ($format == 0) ? number_format($row['count'], 0) : $row['count'];
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getHotSpotsWidget(){
         return array(
-            "total_hs"      => self::getNetowrkTotalHotspots(),
+            "total_hs"      => self::getNetworkTotalHotspots(),
             "available_hs"  => self::getActiveHotspots()
         );
     }
@@ -469,25 +478,25 @@ class SB_HELIUM{
             return $row['value'];
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getLastElectionBlock($format = 0){
         global $pg_db;
+
         try{
             $sql = "SELECT to_timestamp(time), block FROM transactions WHERE type = 'consensus_group_v1' 
                     AND to_timestamp(time) BETWEEN (now() - '6 hour'::interval) AND now() ORDER by block desc limit 1";
 
             $statement = $pg_db->prepare($sql);
-            $statement->bindParam(":var_name", $var);
             $statement->execute();
               
             $row = $statement->fetch(PDO::FETCH_ASSOC);
             return ($format == 0)? number_format($row['block'], 0) : $row['block'];
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -509,7 +518,7 @@ class SB_HELIUM{
             
             return array("time" => $times[0], "times" => implode(",",$times));
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -533,7 +542,7 @@ class SB_HELIUM{
             return ($format == 0)? number_format($row['token_supply'], 2) : $row['token_supply'];
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
@@ -547,8 +556,8 @@ class SB_HELIUM{
 
     public static function getUsage7Day(){
         global $pg_db;
-        $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
-        $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
+        $wallet         = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
+        $date_format    = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
         try{
             $sql = "SELECT DATE(to_timestamp(time)), SUM(num_packets) AS pkts, SUM(num_dcs) AS dcs 
@@ -580,14 +589,14 @@ class SB_HELIUM{
             );
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getDCUsageInUSD7Days(){
         global $pg_db;
-        $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
-        $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
+        $wallet         = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
+        $date_format    = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
         try{
             $sql = "SELECT DATE(to_timestamp(time)), SUM(num_dcs) AS dcs, (SUM(num_dcs) * 1.0E-5) AS USD
@@ -604,10 +613,10 @@ class SB_HELIUM{
             $dollar_from    = array();
 
             while($row = $statement->fetch(PDO::FETCH_ASSOC)){
-                $dcs[]  = $row['dcs'];
-                $date[] = date($date_format, strtotime($row['date']));
-                $dollar[] = $row['usd'];
-                $dollar_from[] = number_format($row['usd'], 2);
+                $dcs[]          = $row['dcs'];
+                $date[]         = date($date_format, strtotime($row['date']));
+                $dollar[]       = $row['usd'];
+                $dollar_from[]  = number_format($row['usd'], 2);
             }
             
             return array(
@@ -622,14 +631,13 @@ class SB_HELIUM{
             );
 
            }catch (PDOException $e){
-            echo $e->getMessage();
+            error_log($e->getMessage());
            }
     }
 
     public static function getBlockAverageTimes(){
         global $pg_db;
-        $wallet = SB_USER::getUserPrimaryWallet($_SESSION['uID']);
-        $date_format = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
+        $date_format    = str_replace(array(", Y", "-Y", "Y-"), "", SB_USER::getUserDateFormat($_SESSION['uID']));
 
         try{
             //Average 15 mins
@@ -676,13 +684,29 @@ class SB_HELIUM{
             }
                 
             return array(
-                "dates" => $date, 
-                "avg_15" => $res_15, 
-                "avg_30" => $res_30, 
-                "avg_1" => $res_1);
+                "dates"     => $date, 
+                "avg_15"    => $res_15, 
+                "avg_30"    => $res_30, 
+                "avg_1"     => $res_1);
 
         }catch (PDOException $e){
-            echo $e->getMessage();
-           }
+            error_log($e->getMessage());
+        }
     }
+
+    public static function getTopEarningHotspots($wallet){
+        global $pg_db;
+
+        try{
+            $sql = "SELECT `name`, `address` FROM `gateway_inventory` WHERE `owner` = :owner";
+            $statement = $pg_db->prepare($sql);
+            $statement->bindParam(":owner", $wallet);
+            $statement->execute();
+
+        }catch (PDOException $e){
+            error_log($e->getMessage());
+        }
+    }
+
+
 }

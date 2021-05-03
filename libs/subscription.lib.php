@@ -42,8 +42,9 @@ class SB_SUBSCRIPTION{
             return true;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
+
         return false;
     }
 
@@ -86,7 +87,7 @@ class SB_SUBSCRIPTION{
 
             return $pkgs;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
 
@@ -154,7 +155,7 @@ class SB_SUBSCRIPTION{
             return $return;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
@@ -232,7 +233,7 @@ class SB_SUBSCRIPTION{
 
             return $return;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
@@ -257,7 +258,7 @@ class SB_SUBSCRIPTION{
             }
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }

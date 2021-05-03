@@ -116,7 +116,7 @@ class SB_THEME{
 
             return $return;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -137,7 +137,7 @@ class SB_THEME{
 
             return $row;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -176,7 +176,7 @@ class SB_THEME{
 
             return $return;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -197,7 +197,7 @@ class SB_THEME{
             return ($row['sb_link_secure'] == 1) ? true : false;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -218,7 +218,7 @@ class SB_THEME{
             return $row['sb_link_name'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -298,7 +298,7 @@ class SB_THEME{
 
             return false;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -331,7 +331,7 @@ class SB_THEME{
             
             return false;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;

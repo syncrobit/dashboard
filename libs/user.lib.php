@@ -21,7 +21,7 @@ class SB_USER{
             return $row['email'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
@@ -41,7 +41,7 @@ class SB_USER{
             return $row['id'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
@@ -61,7 +61,7 @@ class SB_USER{
             return $row['id'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
@@ -79,7 +79,7 @@ class SB_USER{
 
             return $statement->rowCount() > 0;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -106,7 +106,7 @@ class SB_USER{
                 return true;
             }
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -137,7 +137,7 @@ class SB_USER{
                 return "success";
             }
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return "failed";
@@ -172,7 +172,7 @@ class SB_USER{
             return $avatar_uri.$row['avatar'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -192,7 +192,7 @@ class SB_USER{
             return $row['first_name']." ".substr($row['last_name'], 0, 1).".";
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -212,7 +212,7 @@ class SB_USER{
             return $row['first_name'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -231,7 +231,7 @@ class SB_USER{
 
             return $row;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -275,7 +275,7 @@ class SB_USER{
             }
             
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return "failed";
@@ -313,7 +313,7 @@ class SB_USER{
 
             return "failed";
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return "failed";
@@ -333,7 +333,7 @@ class SB_USER{
 
             return $row;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -360,7 +360,7 @@ class SB_USER{
                 return true;
             }
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -380,7 +380,7 @@ class SB_USER{
             return $statement->rowCount() > 0;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -400,7 +400,7 @@ class SB_USER{
             return ($nf == 1) ? $row['member_since'] : self::formatUserDate($uID, $row['member_since'], 1);
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -442,7 +442,7 @@ class SB_USER{
             }
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -492,7 +492,7 @@ class SB_USER{
             
             return $return;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -516,7 +516,7 @@ class SB_USER{
             return $datetime->format(($jd == 1) ? $row['date_format'] : $row['date_format'].' '.$row['time_format']);
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -539,7 +539,7 @@ class SB_USER{
             
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -596,7 +596,7 @@ class SB_USER{
 
             return $return;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -618,7 +618,7 @@ class SB_USER{
             return ($statement->rowCount() > 0) ? true : false;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -637,7 +637,7 @@ class SB_USER{
             
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -660,7 +660,7 @@ class SB_USER{
             return ($statement->rowCount() > 0) ? true : false;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -706,7 +706,7 @@ class SB_USER{
             }
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -731,7 +731,7 @@ class SB_USER{
             );
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return array("status" => "failed");
@@ -751,7 +751,7 @@ class SB_USER{
             return ($statement->rowCount() > 0) ? $row['w_address'] : false;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -788,7 +788,7 @@ class SB_USER{
             return ($statement->execute()) ? "success" : "failed";
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -806,7 +806,7 @@ class SB_USER{
 
             return $statement->rowCount();
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;    
@@ -841,7 +841,7 @@ class SB_USER{
             
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -861,7 +861,7 @@ class SB_USER{
             return $row['type'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -881,7 +881,7 @@ class SB_USER{
             return $row['date_format'];
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;

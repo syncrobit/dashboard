@@ -76,7 +76,7 @@ class SB_AUTH{
             }
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         SB_WATCHDOG::insertUserActivity(SB_USER::userName2uID($username), 'LOGIN', 'Login failed.');
@@ -107,11 +107,12 @@ class SB_AUTH{
         $email      = sanitize_sql_string($email);
         $first_name = sanitize_sql_string($first_name);
         $last_name  = sanitize_sql_string($last_name);
+        $member_s   = time();
 
         try {
             $sql = "INSERT INTO `sb_users` 
                         (`username`, `password`, `email`, `first_name`, `last_name`, `address`, `city`, `state`, `country`, `zip_code`, `hash`, `active`, `pwd_hash`, `member_since`)
-                    VALUES (:username, MD5(:password), :email, :first_name, :last_name, NULL, NULL, NULL, NULL, NULL, :hash, 0, NULL, NOW())";
+                    VALUES (:username, MD5(:password), :email, :first_name, :last_name, NULL, NULL, NULL, NULL, NULL, :hash, 0, NULL, :member_since)";
             $statement = $msql_db->prepare($sql);
             $statement->bindParam(":username", $username);
             $statement->bindParam(":password", $password);
@@ -119,6 +120,7 @@ class SB_AUTH{
             $statement->bindParam(":first_name", $first_name);
             $statement->bindParam(":last_name", $last_name);
             $statement->bindParam(":hash", $hash);
+            $statement->bindParam(":member_since", $member_s);
 
             if($statement->execute()){
                 $uid = $msql_db->lastInsertId();
@@ -129,14 +131,14 @@ class SB_AUTH{
                     $_SESSION['isLoggedIn']     = 1;
                     $_SESSION['uID']            = $uid;
                     $_SESSION['isInactive']     = 1;
-                    $_SESSION['last_activity']  = time();
+                    $_SESSION['last_activity']  = $member_s;
 
                     return "success";
                 }
             }
             return "failed";
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return "failed";
@@ -176,7 +178,7 @@ class SB_AUTH{
             return $statement->rowCount() > 0;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -195,7 +197,7 @@ class SB_AUTH{
             return $statement->rowCount() > 0;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -253,7 +255,7 @@ class SB_AUTH{
                 return "success";
             }
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return "failed";
@@ -277,7 +279,7 @@ class SB_AUTH{
 
             return $statement->rowCount() > 0;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -302,7 +304,7 @@ class SB_AUTH{
             return $statement->execute();
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -331,7 +333,7 @@ class SB_AUTH{
             }
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return "failed";
@@ -356,7 +358,7 @@ class SB_AUTH{
 
             return $statement->rowCount() > 0;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -375,7 +377,7 @@ class SB_AUTH{
             return $statement->execute();
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;

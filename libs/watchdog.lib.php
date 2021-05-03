@@ -70,20 +70,20 @@ class SB_WATCHDOG{
             return ($statement->execute());
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
 
     public static function getUserActivity($uID, $start = '', $end = ''){
         global $msql_db;
-        $start = sanitize_sql_string($start);
-        $end   = sanitize_sql_string($end);
+        $start  = sanitize_sql_string($start);
+        $end    = sanitize_sql_string($end);
 
-        $now = time();
-        $start = (empty($start)) ? strtotime("-1 week", $now) : strtotime($start);
-        $end = (empty($end)) ? $now : strtotime("+1 days", strtotime($end));
-        $uID = sanitize_sql_string($uID);
+        $now    = time();
+        $start  = (empty($start)) ? strtotime("-1 week", $now) : strtotime($start);
+        $end    = (empty($end)) ? $now : strtotime("+1 days", strtotime($end));
+        $uID    = sanitize_sql_string($uID);
 
         try {
             $sql = "SELECT `id`, `title`, `description`, `date`, `ip` FROM `sb_account_history` WHERE `uid` = :uID";
@@ -130,7 +130,7 @@ class SB_WATCHDOG{
 
             return $return;
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }

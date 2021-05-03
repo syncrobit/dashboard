@@ -17,7 +17,7 @@ define("SB_AVATARS", SB_RESOURCES."avatars/");
 define("SB_TMP", SB_CORE."tmp/");
 
 /** MySQL Credentials */
-define("SB_DB_HOST", "192.168.170.171");
+define("SB_DB_HOST", "mysql.local");
 define("SB_DB_USER", "syncrobit");
 define("SB_DB_PASSWORD", "m3rt3c123");
 define("SB_DB_DATABASE", "syncrobit");
@@ -29,7 +29,7 @@ define("MEMCACHED_MEDIUM",  95200);
 define("MEMCACHED_LONG",    1005200);
 
 /** Postgres Credentials */
-define("SB_PG_HOST", "192.168.144.115");
+define("SB_PG_HOST", "pgsql.local");
 define("SB_PG_USER", "etl");
 define("SB_PG_PASSWORD", "m3rt3c123");
 define("SB_PG_DATABASE", "etl");

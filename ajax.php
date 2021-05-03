@@ -82,13 +82,7 @@ switch($_POST['action']){
         $action = SB_AUTH::logOut();
         $response['status'] = ($action) ? "success" : "failed";
         break;
-    
-    case "GET_OVERVIEW":
-        $action = SB_HELIUM::getOverViewSummary();
-        $response['status'] = ($action) ? "success" : "failed";
-        $response['data']   = $action;
-    break;  
-    
+        
     case "GET_USER_SETTINGS":
         $action = SB_USER::getUserSettings($_SESSION['uID']);
         $response['status'] = ($action) ? "success" : "failed";

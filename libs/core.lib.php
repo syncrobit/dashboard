@@ -19,7 +19,7 @@ class SB_CORE{
             return $row['setting_value'];
 
         } catch (PDOException $e) {
-           echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -57,7 +57,7 @@ class SB_CORE{
             return $row['id'];
                 
         } catch (PDOException $e) {
-            echo  $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return $return;
@@ -79,7 +79,7 @@ class SB_CORE{
             return array("city" => $row['city_name'], "state" => $row['state_name']);
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
     }
 
@@ -106,7 +106,7 @@ class SB_CORE{
            return $return;
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         
         return false;
@@ -129,7 +129,7 @@ class SB_CORE{
             return ($row['setting_value'] == 1);
 
         } catch (PDOException $e) {
-           echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return true;
@@ -165,7 +165,7 @@ class SB_CORE{
             return $return;
 
         } catch (PDOException $e) {
-           echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -187,7 +187,7 @@ class SB_CORE{
             return (in_array($u_ip, $allow_ip));
 
         } catch (PDOException $e) {
-           echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -292,7 +292,7 @@ class SB_CORE{
             return ($statement->execute());
             
         } catch (PDOException $e) {
-           echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;
@@ -313,7 +313,7 @@ class SB_CORE{
             }
             
         } catch (PDOException $e) {
-           echo $e->getMessage();
+            error_log($e->getMessage());
         }
 
         return false;

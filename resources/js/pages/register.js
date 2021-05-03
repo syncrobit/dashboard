@@ -1,4 +1,9 @@
 $(document).ready(function (){
+
+    $.validator.addMethod("validUsername", function (value, element) {
+        return /^[a-zA-Z0-9_.-]+$/.test(value);
+    }, "Please enter a valid username");
+
     var $register_from = $('#register_user');
     $register_from.validate({
         rules: {
@@ -25,6 +30,7 @@ $(document).ready(function (){
             },
             username:{
                 required: true,
+                validUsername: true,
                 remote: {
                     url: baseUri,
                     type: 'POST',

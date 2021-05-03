@@ -18,7 +18,7 @@ class SB_HOTSPOTS{
             return $statement->rowCount();
 
         } catch (PDOException $e) {
-            echo $e->getMessage();
+            error_log($e->getMessage());
         }
         return false;
     }
